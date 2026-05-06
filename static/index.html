@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>咨询教练AI辅助成交系统</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    header h1 { font-size: 1.25rem; font-weight: 600; }
+    header span { font-size: 0.85rem; opacity: 0.8; }
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 60px);
+    }
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      padding: 16px 0;
+      overflow-y: auto;
+    }
+    .sidebar-title {
+      padding: 8px 16px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .tool-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 16px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.875rem;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+    .tool-btn:hover { background: var(--bg); }
+    .tool-btn.active { background: #eff6ff; color: var(--primary); font-weight: 500; }
+    .tool-btn .num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .tool-btn.active .num { background: var(--primary); color: white; }
+    .main {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+    .tool-panel { display: none; }
+    .tool-panel.active { display: block; }
+    .panel-header {
+      margin-bottom: 20px;
+    }
+    .panel-header h2 { font-size: 1.2rem; font-weight: 600; margin-bottom: 4px; }
+    .panel-header p { font-size: 0.875rem; color: var(--muted); }
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-grid.single { grid-template-columns: 1fr; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    input, textarea, select {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.875rem;
+      font-family: inherit;
+      color: var(--text);
+      background: white;
+      transition: border-color 0.15s;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    .btn-generate {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 4px;
+    }
+    .btn-generate:hover { background: var(--primary-dark); }
+    .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; }
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .result-title { font-size: 0.875rem; font-weight: 600; color: var(--muted); }
+    .btn-copy {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .btn-copy:hover { border-color: var(--primary); color: var(--primary); }
+    .result-body {
+      font-size: 0.875rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      color: var(--text);
+      min-height: 60px;
+    }
+    .result-body.empty { color: var(--muted); font-style: italic; }
+    .loading-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+      animation: blink 1s infinite;
+      margin-left: 4px;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    .tag {
+      display: inline-block;
+      background: #eff6ff;
+      color: var(--primary);
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>咨询教练AI辅助成交系统</h1>
+    <span>基于 Claude AI · 12个专业工具</span>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-title">工具列表</div>
+    <button class="tool-btn active" onclick="showTool('1')">
+      <span class="num">1</span>学员问题快速诊断器
+    </button>
+    <button class="tool-btn" onclick="showTool('2')">
+      <span class="num">2</span>测评邀约话术生成器
+    </button>
+    <button class="tool-btn" onclick="showTool('3')">
+      <span class="num">3</span>测评前资料匹配助手
+    </button>
+    <button class="tool-btn" onclick="showTool('4')">
+      <span class="num">4</span>需求挖掘提问助手
+    </button>
+    <button class="tool-btn" onclick="showTool('5')">
+      <span class="num">5</span>现场测评点评生成器
+    </button>
+    <button class="tool-btn" onclick="showTool('6')">
+      <span class="num">6</span>能力模型匹配器
+    </button>
+    <button class="tool-btn" onclick="showTool('7')">
+      <span class="num">7</span>个性化训练方案生成器
+    </button>
+    <button class="tool-btn" onclick="showTool('8')">
+      <span class="num">8</span>报价价值拆解助手
+    </button>
+    <button class="tool-btn" onclick="showTool('9')">
+      <span class="num">9</span>异议处理助手
+    </button>
+    <button class="tool-btn" onclick="showTool('10')">
+      <span class="num">10</span>测评后跟进推荐器
+    </button>
+    <button class="tool-btn" onclick="showTool('11')">
+      <span class="num">11</span>客户标签判断助手
+    </button>
+    <button class="tool-btn" onclick="showTool('12')">
+      <span class="num">12</span>咨询复盘评分器
+    </button>
+  </aside>
+
+  <main class="main">
+
+    <!-- Tool 1 -->
+    <div class="tool-panel active" id="panel-1">
+      <div class="panel-header">
+        <h2>学员问题快速诊断器 <span class="tag">诊断</span></h2>
+        <p>输入学员原话，快速生成表层问题、底层原因、训练方向和邀约话术</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid single">
+          <div class="field">
+            <label>学员原话 *</label>
+            <textarea id="t1-input" placeholder="请粘贴学员的原始表述，越完整越好..."></textarea>
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('1', {'input': getId('t1-input')})">
+          ✦ 生成诊断报告
+        </button>
+      </div>
+      <div class="result-card" id="result-1">
+        <div class="result-header">
+          <span class="result-title">诊断结果</span>
+          <button class="btn-copy" onclick="copyResult('1')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-1">点击"生成诊断报告"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+    <!-- Tool 2 -->
+    <div class="tool-panel" id="panel-2">
+      <div class="panel-header">
+        <h2>测评邀约话术生成器 <span class="tag">邀约</span></h2>
+        <p>根据学员状态生成个性化的测评邀约话术</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field full">
+            <label>学员问题 *</label>
+            <textarea id="t2-问题" placeholder="学员反馈的主要问题..."></textarea>
+          </div>
+          <div class="field">
+            <label>跟进次数</label>
+            <input id="t2-跟进次数" type="text" placeholder="如：第3次跟进" />
+          </div>
+          <div class="field">
+            <label>学员状态</label>
+            <input id="t2-学员状态" type="text" placeholder="如：有意向但犹豫中" />
+          </div>
+          <div class="field full">
+            <label>时间节点</label>
+            <input id="t2-时间节点" type="text" placeholder="如：距上次测评2周" />
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('2', {问题:getId('t2-问题'),跟进次数:getId('t2-跟进次数'),学员状态:getId('t2-学员状态'),时间节点:getId('t2-时间节点')})">
+          ✦ 生成邀约话术
+        </button>
+      </div>
+      <div class="result-card" id="result-2">
+        <div class="result-header">
+          <span class="result-title">邀约话术</span>
+          <button class="btn-copy" onclick="copyResult('2')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-2">点击"生成邀约话术"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+    <!-- Tool 3 -->
+    <div class="tool-panel" id="panel-3">
+      <div class="panel-header">
+        <h2>测评前资料匹配助手 <span class="tag">资料</span></h2>
+        <p>测评前精准匹配并推荐资料发送顺序和话术</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field">
+            <label>学员身份 *</label>
+            <input id="t3-身份" type="text" placeholder="如：职场新人、销售主管..." />
+          </div>
+          <div class="field">
+            <label>测评时间</label>
+            <input id="t3-测评时间" type="text" placeholder="如：明天下午3点" />
+          </div>
+          <div class="field full">
+            <label>学员问题 *</label>
+            <textarea id="t3-问题" placeholder="学员的核心问题..."></textarea>
+          </div>
+          <div class="field full">
+            <label>学员目标</label>
+            <input id="t3-目标" type="text" placeholder="学员期望达到的目标..." />
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('3', {身份:getId('t3-身份'),问题:getId('t3-问题'),目标:getId('t3-目标'),测评时间:getId('t3-测评时间')})">
+          ✦ 生成资料方案
+        </button>
+      </div>
+      <div class="result-card" id="result-3">
+        <div class="result-header">
+          <span class="result-title">资料推荐方案</span>
+          <button class="btn-copy" onclick="copyResult('3')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-3">点击"生成资料方案"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+    <!-- Tool 4 -->
+    <div class="tool-panel" id="panel-4">
+      <div class="panel-header">
+        <h2>需求挖掘提问助手 <span class="tag">提问</span></h2>
+        <p>生成7个层层递进的需求挖掘问题</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field">
+            <label>学员身份 *</label>
+            <input id="t4-身份" type="text" placeholder="如：中层管理者" />
+          </div>
+          <div class="field">
+            <label>初步问题 *</label>
+            <input id="t4-初步问题" type="text" placeholder="学员表达的初步问题" />
+          </div>
+          <div class="field full">
+            <label>已知场景</label>
+            <textarea id="t4-已知场景" placeholder="了解到的学员工作/生活场景..."></textarea>
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('4', {身份:getId('t4-身份'),初步问题:getId('t4-初步问题'),已知场景:getId('t4-已知场景')})">
+          ✦ 生成挖掘问题
+        </button>
+      </div>
+      <div class="result-card" id="result-4">
+        <div class="result-header">
+          <span class="result-title">需求挖掘问题</span>
+          <button class="btn-copy" onclick="copyResult('4')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-4">点击"生成挖掘问题"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+    <!-- Tool 5 -->
+    <div class="tool-panel" id="panel-5">
+      <div class="panel-header">
+        <h2>现场测评点评生成器 <span class="tag">点评</span></h2>
+        <p>根据测评表现生成专业、有建设性的点评话术</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field">
+            <label>测评形式 *</label>
+            <input id="t5-测评形式" type="text" placeholder="如：模拟销售对话、演讲..." />
+          </div>
+          <div class="field full">
+            <label>学员表现 *</label>
+            <textarea id="t5-学员表现" placeholder="描述学员在测评中的整体表现..."></textarea>
+          </div>
+          <div class="field">
+            <label>主要优点</label>
+            <textarea id="t5-优点" placeholder="学员表现好的地方..." style="min-height:60px"></textarea>
+          </div>
+          <div class="field">
+            <label>存在问题</label>
+            <textarea id="t5-问题" placeholder="学员需要提升的地方..." style="min-height:60px"></textarea>
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('5', {测评形式:getId('t5-测评形式'),学员表现:getId('t5-学员表现'),优点:getId('t5-优点'),问题:getId('t5-问题')})">
+          ✦ 生成点评话术
+        </button>
+      </div>
+      <div class="result-card" id="result-5">
+        <div class="result-header">
+          <span class="result-title">测评点评话术</span>
+          <button class="btn-copy" onclick="copyResult('5')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-5">点击"生成点评话术"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+    <!-- Tool 6 -->
+    <div class="tool-panel" id="panel-6">
+      <div class="panel-header">
+        <h2>能力模型匹配器 <span class="tag">匹配</span></h2>
+        <p>精准识别学员短板，匹配对应训练模块</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field">
+            <label>学员身份 *</label>
+            <input id="t6-身份" type="text" placeholder="如：职场3年销售人员" />
+          </div>
+          <div class="field">
+            <label>应用场景 *</label>
+            <input id="t6-场景" type="text" placeholder="如：B端客户拜访" />
+          </div>
+          <div class="field full">
+            <label>核心问题 *</label>
+            <textarea id="t6-问题" placeholder="学员的核心能力问题..."></textarea>
+          </div>
+          <div class="field full">
+            <label>学员目标</label>
+            <input id="t6-目标" type="text" placeholder="学员期望达到的结果..." />
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('6', {身份:getId('t6-身份'),场景:getId('t6-场景'),问题:getId('t6-问题'),目标:getId('t6-目标')})">
+          ✦ 生成能力分析
+        </button>
+      </div>
+      <div class="result-card" id="result-6">
+        <div class="result-header">
+          <span class="result-title">能力分析报告</span>
+          <button class="btn-copy" onclick="copyResult('6')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-6">点击"生成能力分析"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+    <!-- Tool 7 -->
+    <div class="tool-panel" id="panel-7">
+      <div class="panel-header">
+        <h2>个性化训练方案生成器 <span class="tag">方案</span></h2>
+        <p>生成阶段性个性化训练方案和成交话术</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field">
+            <label>学员类型 *</label>
+            <input id="t7-学员类型" type="text" placeholder="如：职场新人/经验销售..." />
+          </div>
+          <div class="field">
+            <label>训练周期</label>
+            <input id="t7-周期" type="text" placeholder="如：3个月/6个月" />
+          </div>
+          <div class="field full">
+            <label>核心问题 *</label>
+            <textarea id="t7-问题" placeholder="学员的核心问题..." style="min-height:60px"></textarea>
+          </div>
+          <div class="field">
+            <label>应用场景</label>
+            <input id="t7-场景" type="text" placeholder="学员主要应用场景" />
+          </div>
+          <div class="field">
+            <label>期望目标</label>
+            <input id="t7-目标" type="text" placeholder="学员期望达到的目标" />
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('7', {学员类型:getId('t7-学员类型'),问题:getId('t7-问题'),场景:getId('t7-场景'),目标:getId('t7-目标'),周期:getId('t7-周期')})">
+          ✦ 生成训练方案
+        </button>
+      </div>
+      <div class="result-card" id="result-7">
+        <div class="result-header">
+          <span class="result-title">个性化训练方案</span>
+          <button class="btn-copy" onclick="copyResult('7')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-7">点击"生成训练方案"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+    <!-- Tool 8 -->
+    <div class="tool-panel" id="panel-8">
+      <div class="panel-header">
+        <h2>报价价值拆解助手 <span class="tag">报价</span></h2>
+        <p>将套餐价值清晰呈现，生成有说服力的报价话术</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field full">
+            <label>套餐内容 *</label>
+            <textarea id="t8-套餐" placeholder="详细描述套餐包含的内容..." style="min-height:60px"></textarea>
+          </div>
+          <div class="field">
+            <label>套餐价格 *</label>
+            <input id="t8-价格" type="text" placeholder="如：9800元" />
+          </div>
+          <div class="field">
+            <label>训练周期</label>
+            <input id="t8-周期" type="text" placeholder="如：3个月" />
+          </div>
+          <div class="field">
+            <label>学员目标</label>
+            <input id="t8-目标" type="text" placeholder="学员的核心目标" />
+          </div>
+          <div class="field">
+            <label>主要顾虑</label>
+            <input id="t8-顾虑" type="text" placeholder="如：价格太贵、效果不确定..." />
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('8', {套餐:getId('t8-套餐'),价格:getId('t8-价格'),周期:getId('t8-周期'),目标:getId('t8-目标'),顾虑:getId('t8-顾虑')})">
+          ✦ 生成报价话术
+        </button>
+      </div>
+      <div class="result-card" id="result-8">
+        <div class="result-header">
+          <span class="result-title">报价话术</span>
+          <button class="btn-copy" onclick="copyResult('8')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-8">点击"生成报价话术"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+    <!-- Tool 9 -->
+    <div class="tool-panel" id="panel-9">
+      <div class="panel-header">
+        <h2>异议处理助手 <span class="tag">异议</span></h2>
+        <p>用4步法化解学员异议，生成专业应对话术</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field full">
+            <label>学员异议 *</label>
+            <textarea id="t9-异议" placeholder="学员提出的具体异议或反对意见..."></textarea>
+          </div>
+          <div class="field">
+            <label>学员身份</label>
+            <input id="t9-身份" type="text" placeholder="如：创业者、职场人..." />
+          </div>
+          <div class="field">
+            <label>学员目标</label>
+            <input id="t9-目标" type="text" placeholder="学员期望达到的目标" />
+          </div>
+          <div class="field full">
+            <label>推荐套餐</label>
+            <input id="t9-套餐" type="text" placeholder="当前推荐的套餐名称" />
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('9', {异议:getId('t9-异议'),身份:getId('t9-身份'),目标:getId('t9-目标'),套餐:getId('t9-套餐')})">
+          ✦ 生成异议处理话术
+        </button>
+      </div>
+      <div class="result-card" id="result-9">
+        <div class="result-header">
+          <span class="result-title">异议处理话术</span>
+          <button class="btn-copy" onclick="copyResult('9')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-9">点击"生成异议处理话术"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+    <!-- Tool 10 -->
+    <div class="tool-panel" id="panel-10">
+      <div class="panel-header">
+        <h2>测评后跟进推荐器 <span class="tag">跟进</span></h2>
+        <p>生成个性化的跟进策略和可直接使用的跟进话术</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field">
+            <label>学员阶段 *</label>
+            <input id="t10-学员阶段" type="text" placeholder="如：已测评未报价、已报价未成交..." />
+          </div>
+          <div class="field">
+            <label>测评时间</label>
+            <input id="t10-测评时间" type="text" placeholder="如：3天前" />
+          </div>
+          <div class="field">
+            <label>已跟进天数</label>
+            <input id="t10-跟进天数" type="text" placeholder="如：5天" />
+          </div>
+          <div class="field">
+            <label>所在行业</label>
+            <input id="t10-行业" type="text" placeholder="如：互联网、教育、金融..." />
+          </div>
+          <div class="field full">
+            <label>主要顾虑</label>
+            <input id="t10-顾虑" type="text" placeholder="学员当前的主要顾虑点" />
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('10', {学员阶段:getId('t10-学员阶段'),测评时间:getId('t10-测评时间'),跟进天数:getId('t10-跟进天数'),顾虑:getId('t10-顾虑'),行业:getId('t10-行业')})">
+          ✦ 生成跟进策略
+        </button>
+      </div>
+      <div class="result-card" id="result-10">
+        <div class="result-header">
+          <span class="result-title">跟进策略与话术</span>
+          <button class="btn-copy" onclick="copyResult('10')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-10">点击"生成跟进策略"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+    <!-- Tool 11 -->
+    <div class="tool-panel" id="panel-11">
+      <div class="panel-header">
+        <h2>客户标签判断助手 <span class="tag">标签</span></h2>
+        <p>综合聊天记录和行为数据，精准判断客户意向标签</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="field full">
+            <label>聊天记录摘要 *</label>
+            <textarea id="t11-聊天记录" placeholder="粘贴关键聊天记录或摘要..."></textarea>
+          </div>
+          <div class="field">
+            <label>测评情况</label>
+            <input id="t11-测评" type="text" placeholder="如：已完成测评、未测评..." />
+          </div>
+          <div class="field">
+            <label>报价情况</label>
+            <input id="t11-报价" type="text" placeholder="如：已报价9800元套餐" />
+          </div>
+          <div class="field">
+            <label>意向表现</label>
+            <input id="t11-意向" type="text" placeholder="如：问了很多问题、比较积极..." />
+          </div>
+          <div class="field">
+            <label>付款状态</label>
+            <input id="t11-付款状态" type="text" placeholder="如：未付款、已付定金..." />
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('11', {聊天记录:getId('t11-聊天记录'),测评:getId('t11-测评'),报价:getId('t11-报价'),意向:getId('t11-意向'),付款状态:getId('t11-付款状态')})">
+          ✦ 生成客户标签
+        </button>
+      </div>
+      <div class="result-card" id="result-11">
+        <div class="result-header">
+          <span class="result-title">客户标签分析</span>
+          <button class="btn-copy" onclick="copyResult('11')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-11">点击"生成客户标签"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+    <!-- Tool 12 -->
+    <div class="tool-panel" id="panel-12">
+      <div class="panel-header">
+        <h2>咨询复盘评分器 <span class="tag">复盘</span></h2>
+        <p>对咨询过程进行8维度专业评分和改进建议</p>
+      </div>
+      <div class="form-card">
+        <div class="form-grid single">
+          <div class="field">
+            <label>咨询记录 *</label>
+            <textarea id="t12-咨询记录" placeholder="粘贴本次咨询的完整记录或详细摘要..." style="min-height:120px"></textarea>
+          </div>
+          <div class="field">
+            <label>是否成交</label>
+            <select id="t12-是否成交">
+              <option value="未成交">未成交</option>
+              <option value="成交">已成交</option>
+              <option value="跟进中">跟进中</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generate('12', {咨询记录:getId('t12-咨询记录'),是否成交:getId('t12-是否成交')})">
+          ✦ 开始复盘评分
+        </button>
+      </div>
+      <div class="result-card" id="result-12">
+        <div class="result-header">
+          <span class="result-title">复盘评分报告</span>
+          <button class="btn-copy" onclick="copyResult('12')">复制</button>
+        </div>
+        <div class="result-body empty" id="result-body-12">点击"开始复盘评分"后，AI结果将显示在这里...</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function showTool(id) {
+    document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    document.querySelectorAll('.tool-btn')[parseInt(id) - 1].classList.add('active');
+  }
+
+  function getId(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+
+  async function generate(toolId, inputs) {
+    const bodyEl = document.getElementById('result-body-' + toolId);
+    bodyEl.classList.remove('empty');
+    bodyEl.innerHTML = '<span class="loading-dot"></span>';
+
+    let fullText = '';
+
+    try {
+      const resp = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tool_id: toolId, inputs })
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json();
+        bodyEl.textContent = '错误：' + (err.detail || '请求失败');
+        return;
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6);
+          if (data === '[DONE]') break;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.error) {
+              bodyEl.textContent = '错误：' + parsed.error;
+              return;
+            }
+            if (parsed.text) {
+              fullText += parsed.text;
+              bodyEl.textContent = fullText;
+            }
+          } catch {}
+        }
+      }
+    } catch (e) {
+      bodyEl.textContent = '网络错误：' + e.message;
+    }
+  }
+
+  function copyResult(toolId) {
+    const text = document.getElementById('result-body-' + toolId).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('#result-' + toolId + ' .btn-copy');
+      const orig = btn.textContent;
+      btn.textContent = '已复制 ✓';
+      setTimeout(() => btn.textContent = orig, 2000);
+    });
+  }
+</script>
+</body>
+</html>
