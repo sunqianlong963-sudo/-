@@ -1,0 +1,42 @@
+# OpenFlow API 配置示例
+# 复制此文件为 config.yaml 并填入实际值
+
+api:
+  # API 基础 URL
+  base_url: "https://api.openflow.example.com/v1"
+
+  # 请求超时时间（秒）
+  timeout: 30
+
+  # 是否验证 SSL 证书（生产环境建议保持 true）
+  verify_ssl: true
+
+# 认证配置
+auth:
+  # 认证方式: api_key | bearer_token | oauth2
+  type: "api_key"
+
+  # API Key 通过环境变量传入（推荐），也可在此填写
+  # api_key: "your_api_key_here"
+
+  # API Key 的请求头名称
+  header_name: "X-API-Key"
+
+# 重试策略
+retry:
+  # 最大重试次数
+  max_retries: 3
+
+  # 初始重试延迟（秒）
+  initial_delay: 1.0
+
+  # 退避倍数
+  backoff_factor: 2.0
+
+  # 触发重试的状态码
+  retry_on_status: [429, 500, 502, 503, 504]
+
+# 日志配置
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
