@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>演讲口才 · AI 自动化获客助手 v1</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #2c3e50; font-size: 14px; line-height: 1.6; }
+.app { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar { width: 220px; background: #1e293b; color: #fff; flex-shrink: 0; }
+.sidebar .logo { padding: 24px 20px; font-size: 18px; font-weight: 600; border-bottom: 1px solid #334155; }
+.sidebar .logo .sub { display: block; font-size: 11px; color: #94a3b8; margin-top: 4px; font-weight: 400; }
+.sidebar .nav { padding: 16px 0; }
+.sidebar .nav-item { padding: 12px 20px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+.sidebar .nav-item:hover { background: #334155; }
+.sidebar .nav-item.active { background: #ef4444; color: #fff; }
+.sidebar .nav-item .icon { width: 18px; text-align: center; }
+.sidebar .footer { position: absolute; bottom: 20px; left: 20px; font-size: 11px; color: #64748b; }
+
+/* Main */
+.main { flex: 1; padding: 30px 40px; overflow-y: auto; max-width: calc(100vw - 220px); }
+.page-title { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+.page-desc { color: #64748b; margin-bottom: 24px; font-size: 13px; }
+
+/* Cards */
+.card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 16px; }
+.card h3 { font-size: 15px; margin-bottom: 12px; color: #334155; }
+
+/* Buttons */
+.btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: #ef4444; color: #fff; }
+.btn-primary:hover { background: #dc2626; }
+.btn-secondary { background: #f1f5f9; color: #475569; }
+.btn-secondary:hover { background: #e2e8f0; }
+.btn-ghost { background: transparent; color: #64748b; }
+.btn-ghost:hover { background: #f1f5f9; }
+.btn-danger { background: #fff; color: #ef4444; border: 1px solid #fecaca; }
+.btn-danger:hover { background: #fef2f2; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Forms */
+input[type="text"], input[type="password"], textarea, select { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; font-family: inherit; transition: border 0.2s; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: #ef4444; }
+textarea { resize: vertical; min-height: 80px; }
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; margin-bottom: 6px; color: #475569; font-weight: 500; font-size: 12px; }
+.form-row .hint { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 4px; margin-bottom: 2px; }
+.tag-blue { background: #dbeafe; color: #1e40af; }
+.tag-green { background: #d1fae5; color: #065f46; }
+.tag-orange { background: #fed7aa; color: #9a3412; }
+.tag-purple { background: #ede9fe; color: #5b21b6; }
+.tag-pink { background: #fce7f3; color: #9d174d; }
+.tag-gray { background: #f1f5f9; color: #475569; }
+
+/* Table */
+.table { width: 100%; border-collapse: collapse; }
+.table th { background: #f8fafc; padding: 10px 12px; text-align: left; font-size: 12px; color: #64748b; font-weight: 500; border-bottom: 1px solid #e2e8f0; }
+.table td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+.table tr:hover td { background: #fafbfc; }
+
+/* Dashboard stats */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.stat-card .label { font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
+.stat-card .value { font-size: 26px; font-weight: 600; color: #1e293b; }
+.stat-card .delta { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+
+/* Topic Library */
+.topic-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-pill { padding: 6px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+.filter-pill.active { background: #ef4444; color: #fff; border-color: #ef4444; }
+.filter-pill:hover:not(.active) { border-color: #cbd5e1; }
+
+.topic-card { background: #fff; padding: 16px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s; }
+.topic-card:hover { border-color: #fecaca; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.08); }
+.topic-card.selected { border-color: #ef4444; background: #fef2f2; }
+.topic-card .title { font-weight: 500; margin-bottom: 6px; color: #1e293b; }
+.topic-card .meta { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+.topic-card .hook { font-size: 12px; color: #64748b; font-style: italic; padding-left: 8px; border-left: 2px solid #fecaca; margin-top: 8px; }
+.topic-card .actions { margin-top: 10px; display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s; }
+.topic-card:hover .actions { opacity: 1; }
+
+/* Generation panel */
+.gen-layout { display: grid; grid-template-columns: 360px 1fr; gap: 20px; }
+.gen-output { background: #fff; border-radius: 8px; padding: 20px; min-height: 500px; }
+.gen-tabs { display: flex; border-bottom: 1px solid #e2e8f0; margin-bottom: 16px; }
+.gen-tab { padding: 10px 16px; cursor: pointer; font-size: 13px; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.gen-tab.active { color: #ef4444; border-color: #ef4444; font-weight: 500; }
+.gen-result { background: #f8fafc; padding: 16px; border-radius: 6px; white-space: pre-wrap; font-size: 13px; line-height: 1.8; max-height: 600px; overflow-y: auto; }
+.gen-empty { text-align: center; padding: 60px 20px; color: #94a3b8; }
+.gen-empty .icon { font-size: 36px; margin-bottom: 12px; }
+.gen-loading { text-align: center; padding: 40px; color: #64748b; }
+.gen-loading::after { content: ""; display: inline-block; width: 20px; height: 20px; border: 2px solid #ef4444; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-left: 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Modal */
+.modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 100; }
+.modal-mask.show { display: flex; }
+.modal { background: #fff; border-radius: 8px; width: 90%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
+.modal-header { padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-size: 16px; }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #94a3b8; }
+.modal-body { padding: 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid #f1f5f9; text-align: right; }
+.modal-footer .btn + .btn { margin-left: 8px; }
+
+/* Toast */
+.toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; color: #fff; padding: 12px 20px; border-radius: 6px; font-size: 13px; z-index: 200; opacity: 0; transition: opacity 0.3s; }
+.toast.show { opacity: 1; }
+.toast.success { background: #059669; }
+.toast.error { background: #dc2626; }
+
+/* Empty state */
+.empty { text-align: center; padding: 60px 20px; color: #94a3b8; }
+.empty .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+.empty .text { margin-bottom: 16px; }
+
+/* Lead status colors */
+.status-new { background: #fef3c7; color: #92400e; }
+.status-following { background: #dbeafe; color: #1e40af; }
+.status-converted { background: #d1fae5; color: #065f46; }
+.status-lost { background: #f1f5f9; color: #475569; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">演讲口才获客<span class="sub">AI 自动化助手 v1</span></div>
+    <div class="nav">
+      <div class="nav-item active" data-page="dashboard"><span class="icon">📊</span>仪表盘</div>
+      <div class="nav-item" data-page="topics"><span class="icon">📚</span>选题库</div>
+      <div class="nav-item" data-page="generate"><span class="icon">✨</span>AI 产稿</div>
+      <div class="nav-item" data-page="history"><span class="icon">📝</span>历史记录</div>
+      <div class="nav-item" data-page="leads"><span class="icon">👥</span>线索管理</div>
+      <div class="nav-item" data-page="settings"><span class="icon">⚙️</span>设置</div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main" id="main"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal-mask" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle"></h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// 1. 内置数据：选题库 + Prompt 模板
+// ============================================================
+
+const BUILTIN_TOPICS = [
+  {客群:"职场人",分类:"汇报演讲",标题:"领导让你5分钟汇报怎么开头让他眼前一亮",钩子:"你以为汇报是讲数据？错了，前30秒决定老板要不要继续听",要点:"三种开场法：数据反差/痛点共鸣/结论先行；3个案例；现场示范一段",平台:["抖音","视频号","小红书"],目标:"试听课"},
+  {客群:"职场人",分类:"汇报演讲",标题:"周会发言总是没人听因为你没说这3句话",钩子:"为什么你发言别人都在玩手机？因为你犯了这个错",要点:"开场不带钩子；信息密度低；没有结尾CTA；正反对比示范",平台:["抖音","视频号"],目标:"试听课"},
+  {客群:"职场人",分类:"职场沟通",标题:"跨部门撕逼时高情商的人都怎么说",钩子:"上次跨部门撕逼你输了对吧？我教你3句话翻盘",要点:"情绪先剥离；用对方利益重新框定；落到行动方案",平台:["小红书","知乎"],目标:"加微信咨询"},
+  {客群:"职场人",分类:"职场沟通",标题:"老板问你怎么看怎么回答显得有水平",钩子:"老板一句你怎么看让多少人原地宕机？背下这个模板",要点:"判断+理由+方案的3段结构；3个真实场景演示",平台:["抖音","小红书"],目标:"试听课"},
+  {客群:"职场人",分类:"职场沟通",标题:"给领导发微信开头千万别说在吗",钩子:"给领导发在吗等于自杀，正确的开头是这5种",要点:"场景化对比；高效沟通的SCQA模型；微信话术模板10条",平台:["小红书","公众号"],目标:"公众号关注"},
+  {客群:"职场人",分类:"克服紧张",标题:"在大会上发言紧张到颤抖我用过这3招立竿见影",钩子:"上台前心跳200次每分钟？这3个生理小技巧救了我",要点:"生理调节：4-7-8呼吸法；预演法；锚定法；30天训练计划",平台:["抖音","视频号","小红书"],目标:"试听课"},
+  {客群:"职场人",分类:"个人形象",标题:"怎么让自己说话听起来更有领导味",钩子:"为什么有的人一开口就让人觉得是领导？秘密在这3点",要点:"语速控制；停顿艺术；用词升级；语调下沉；现场示范",平台:["抖音","视频号"],目标:"试听课"},
+  {客群:"职场人",分类:"临场反应",标题:"当众被质疑时怎么不慌不忙地反击",钩子:"被当众质疑别慌，记住这个3步法稳赢",要点:"承认部分合理；重新定义问题；给出新视角；3个真实案例",平台:["小红书","知乎"],目标:"加微信咨询"},
+  {客群:"职场人",分类:"述职演讲",标题:"述职报告的金句模板照着写就过关",钩子:"述职用这5个金句结构，老板印象分直接拉满",要点:"开场金句3条；过程金句3条；结尾金句3条；可下载模板",平台:["小红书","公众号"],目标:"公众号关注"},
+  {客群:"职场人",分类:"职场沟通",标题:"同事抢你功劳当场怎么回怼最有水平",钩子:"同事在老板面前抢你功劳？这3句话不撕逼还能拿回主导权",要点:"不否定对方但补充关键贡献；引用数据；落到下一步行动",平台:["抖音","小红书"],目标:"加微信咨询"},
+  {客群:"职场人",分类:"商务谈判",标题:"客户嫌贵3句话让他主动加预算",钩子:"客户说太贵了？顶级销售从不降价而是这样接话",要点:"价值锚定；对比转换；风险反推；现场对话演示",平台:["抖音","视频号"],目标:"试听课"},
+  {客群:"职场人",分类:"主持表达",标题:"主持公司年会怎么开场不冷场",钩子:"年会主持开场冷场是大忌，这4种开场100%炸场",要点:"互动开场；故事开场；悬念开场；数据开场；现场示范",平台:["小红书","视频号"],目标:"试听课"},
+  {客群:"职场人",分类:"商务谈判",标题:"跟老板谈加薪第一句话决定结果",钩子:"谈加薪开口就说工作辛苦的人，基本都失败了",要点:"用价值开场而非诉苦；BATNA准备；现场对话演示",平台:["抖音","小红书"],目标:"试听课"},
+  {客群:"职场人",分类:"自我介绍",标题:"新人入职自我介绍记住这个公式",钩子:"新人自我介绍说太多说太少都错，背下这个公式",要点:"姓名+亮点+连接点+幽默收尾；3个不同场景模板",平台:["小红书","抖音"],目标:"试听课"},
+  {客群:"职场人",分类:"演讲技巧",标题:"怎么让你的PPT演讲不再像念稿子",钩子:"PPT演讲念稿子？观众早就走神了！3招让你脱稿",要点:"信息分层；眼神连接；动作配合；现场前后对比",平台:["抖音","视频号"],目标:"试听课"},
+  {客群:"职场人",分类:"克服紧张",标题:"上台前手心冒汗3个生理小技巧立刻平静",钩子:"上台前紧张到崩溃？这3个生理技巧10秒见效",要点:"冷水洗手；强势体态；正念呼吸；亲身演示",平台:["抖音","小红书"],目标:"试听课"},
+  {客群:"职场人",分类:"团建表达",标题:"团建破冰发言的5个万能模板",钩子:"团建被cue发言？这5个模板抄了就能用",要点:"互动型；故事型；问题型；自嘲型；展望型",平台:["小红书","公众号"],目标:"公众号关注"},
+  {客群:"职场人",分类:"管理沟通",标题:"跟下属谈话怎么说话他才服你",钩子:"管不住下属？大概率是你说话犯了这3个错",要点:"少用命令多用问题；先认可后建议；明确边界",平台:["抖音","视频号","知乎"],目标:"加微信咨询"},
+  {客群:"职场人",分类:"面试表达",标题:"面试官问你的缺点是什么标准答案是",钩子:"面试官问缺点千万别说完美主义，正确答案是这种",要点:"承认真实缺点+正在改进的行动+举例；3个示范",平台:["小红书","抖音"],目标:"试听课"},
+  {客群:"职场人",分类:"结构表达",标题:"高管开会都用的3点法表达结构",钩子:"为什么高管说话都用3点？背后是这个表达底层逻辑",要点:"金字塔原理简化版；3点法模板；3个场景应用",平台:["小红书","知乎","公众号"],目标:"公众号关注"},
+  {客群:"宝妈",分类:"克服社恐",标题:"我曾经一开口就脸红30天我做了这3件事",钩子:"我曾经买杯奶茶都不敢开口，30天改变了我",要点:"暴露疗法日常版；表达日记法；小圈子练习；前后对比",平台:["抖音","小红书"],目标:"加微信咨询"},
+  {客群:"宝妈",分类:"亲戚应对",标题:"在亲戚面前总被怼这样回怼又得体又解气",钩子:"过年被七大姑八大姨追问？这3句话堵她们嘴还不撕破脸",要点:"幽默化解；反问引导；话题转移；具体场景演示",平台:["抖音","小红书"],目标:"加微信咨询"},
+  {客群:"宝妈",分类:"婆媳关系",标题:"婆婆爱挑事高情商儿媳都这样说话",钩子:"婆婆又来挑事？记住这3个回应公式不吵架还能赢",要点:"情绪先接住；事实再澄清；行动转移；真实案例",平台:["小红书","视频号"],目标:"加微信咨询"},
+  {客群:"宝妈",分类:"夫妻沟通",标题:"跟老公吵架时记住这一句话省一半气",钩子:"和老公吵架越吵越凶？这一句话立刻降温",要点:"非暴力沟通4步法；先表达感受再陈述事实；现场对话",平台:["抖音","小红书"],目标:"试听课"},
+  {客群:"宝妈",分类:"亲子表达",标题:"孩子在外面调皮怎么管教不丢自己面子",钩子:"孩子在外面闹腾？高情商妈妈这样处理两全其美",要点:"蹲下平视；私密沟通；事后复盘；3个公共场景示范",平台:["小红书","视频号"],目标:"试听课"},
+  {客群:"宝妈",分类:"社交破冰",标题:"闺蜜聚会插不上话这3个万能话题",钩子:"闺蜜聚会只能尬笑？这3个话题立刻成为焦点",要点:"八卦延伸；自嘲共鸣；好物种草；现场对话演示",平台:["小红书","抖音"],目标:"加微信咨询"},
+  {客群:"宝妈",分类:"见家长",标题:"第一次见公婆开场白这样说稳赢",钩子:"第一次见公婆紧张到失眠？这套开场白让长辈秒喜欢",要点:"称呼+小礼物+真诚夸赞+共同话题；3种家庭场景",平台:["小红书","抖音"],目标:"加微信咨询"},
+  {客群:"宝妈",分类:"边界表达",标题:"怎么自然地拒绝别人不得罪人也不委屈自己",钩子:"老好人累不累？学会这3种拒绝法立刻轻松",要点:"承认+理由+替代方案；3个场景演示（同事/亲戚/朋友）",平台:["小红书","知乎"],目标:"加微信咨询"},
+  {客群:"宝妈",分类:"蜕变故事",标题:"从社恐到主持邻居婚礼我做对了什么",钩子:"3年前我连点餐都不敢开口，现在我主持了200场活动",要点:"起点；3个关键节点；具体训练方法；心态转变",平台:["抖音","视频号","小红书"],目标:"试听课"},
+  {客群:"宝妈",分类:"社交破冰",标题:"跟陌生人聊天5分钟就尬住学会这个万能套路",钩子:"和陌生人聊天5分钟必尬？这个万能套路屡试不爽",要点:"FORD话题法（家庭/职业/休闲/梦想）；实战演示",平台:["小红书","抖音"],目标:"试听课"},
+  {客群:"宝妈",分类:"亲子教育",标题:"教孩子说话表达这个游戏比报班还有用",钩子:"孩子内向不爱说话？这个亲子游戏每天10分钟见效",要点:"角色扮演法；故事接龙法；情景模拟法；案例展示",平台:["小红书","视频号"],目标:"试听课"},
+  {客群:"宝妈",分类:"夫妻沟通",标题:"老公冷暴力3句话让他主动开口",钩子:"老公冷战不理你？这3句话破冰还不掉价",要点:"表达感受不指责；给台阶；提小请求；真实对话",平台:["抖音","小红书"],目标:"加微信咨询"},
+  {客群:"宝妈",分类:"职场社交",标题:"跟客户同事告别说什么给人印象最深",钩子:"和别人告别只会说再见？这5种告别话术让人记住你",要点:"总结型；展望型；幽默型；关切型；专业型；现场示范",平台:["小红书","抖音"],目标:"试听课"},
+  {客群:"宝妈",分类:"自我提升",标题:"30加女性想改善表达先从这件小事开始",钩子:"30+想改变表达从哪开始？不是报班是这件小事",要点:"每天朗读10分钟；录音复盘；积累金句；具体方法",平台:["小红书","公众号"],目标:"公众号关注"},
+  {客群:"宝妈",分类:"认知重构",标题:"你以为内向就不能演讲最厉害的演讲者都内向",钩子:"内向不是缺点而是表达的超能力，这3个证据",要点:"内向者的优势：深度思考/共情/准备充分；案例；训练方法",平台:["小红书","知乎"],目标:"公众号关注"},
+  {客群:"主播销售",分类:"直播开场",标题:"直播间留人的开场前30秒必说这4句话",钩子:"直播间留不住人？前30秒必说这4句话流量翻3倍",要点:"欢迎语+福利预告+互动钩子+CTA；爆款主播话术拆解",平台:["抖音","视频号"],目标:"加微信咨询"},
+  {客群:"主播销售",分类:"销售话术",标题:"客户说我考虑一下顶级销售这样接",钩子:"客户一句我考虑一下让多少销售单子飞了？标准答案是这种",要点:"识别真异议；用问题引导；给紧迫感；3个场景对话",平台:["抖音","小红书"],目标:"试听课"},
+  {客群:"主播销售",分类:"路演表达",标题:"路演5分钟怎么让投资人记住你",钩子:"路演5分钟决定融资成败，这个开头让VC秒记住你",要点:"痛点+反差+愿景的开场结构；3个成功案例拆解",平台:["知乎","公众号"],目标:"加微信咨询"},
+  {客群:"主播销售",分类:"价格异议",标题:"卖货时怎么说贵才不显low",钩子:"客户嫌贵别说一分钱一分货，换成这3句话立刻不一样",要点:"价值重构；对比转换；体验唤起；现场话术演示",平台:["抖音","小红书"],目标:"加微信咨询"},
+  {客群:"主播销售",分类:"镜头表达",标题:"镜头前不自然这3个细节立刻有专业感",钩子:"镜头前像木头？这3个细节练1周就有专业感",要点:"眼神聚焦点；微表情管理；手势配合；前后对比",平台:["抖音","视频号"],目标:"试听课"},
+  {客群:"主播销售",分类:"直播话术",标题:"直播带货的3秒钩子公式",钩子:"直播间3秒留人公式：痛点+反差+悬念，背下立刻用",要点:"公式拆解；20条爆款钩子样本；按行业改写演示",平台:["小红书","抖音"],目标:"试听课"},
+  {客群:"主播销售",分类:"直播运营",标题:"第一次直播没人看检查这5件事",钩子:"第一次直播0观众？大概率是这5件事没做对",要点:"流量入口；标题钩子；封面设计；话术节奏；CTA",平台:["小红书","公众号"],目标:"加微信咨询"},
+  {客群:"主播销售",分类:"销售开场",标题:"销售开场白别再说了解一下换成这5句",钩子:"销售一开口说了解一下就被拉黑？换成这5句话开单率翻倍",要点:"痛点切入；价值前置；好奇心驱动；3个行业案例",平台:["抖音","小红书"],目标:"加微信咨询"},
+  {客群:"主播销售",分类:"路演技巧",标题:"路演PPT只放这3页融资成功率翻倍",钩子:"投资人最讨厌的BP都长这样？只放这3页就够了",要点:"团队页；模型页；数据页；真实投资人视角",平台:["知乎","公众号"],目标:"加微信咨询"},
+  {客群:"主播销售",分类:"创业表达",标题:"创业者BP讲5分钟逻辑必须是这个顺序",钩子:"创业者讲BP翻车？因为没按这个5分钟黄金顺序",要点:"问题-方案-市场-壁垒-融资；模板可下载",平台:["知乎","公众号"],目标:"公众号关注"},
+  {客群:"主播销售",分类:"直播促单",标题:"直播间逼单话术怎么说不让人反感",钩子:"直播间逼单生硬？这3种话术既不low又有效",要点:"稀缺型；从众型；价值锚定型；脚本可复用",平台:["抖音","视频号"],目标:"加微信咨询"},
+  {客群:"主播销售",分类:"镜头表达",标题:"镜头表达力差的人先练这一个动作",钩子:"镜头前僵硬？先练这1个动作所有问题都解决",要点:"定点表达+手势节拍器；练习方法；30天计划",平台:["抖音","小红书"],目标:"试听课"},
+  {客群:"主播销售",分类:"异议处理",标题:"客户拒绝后怎么软回复还能留机会",钩子:"客户说不要了怎么办？这个软回复让他主动回头",要点:"共情+留种子+轻邀请的3段结构；3个场景演示",平台:["小红书","知乎"],目标:"加微信咨询"},
+  {客群:"主播销售",分类:"账号运营",标题:"抖音口播账号涨粉慢大概率是你的信息密度太低",钩子:"你的口播账号没流量？因为你1分钟只说了3个信息点",要点:"信息密度公式；爆款口播拆解；改写演示",平台:["抖音","小红书"],目标:"公众号关注"},
+  {客群:"主播销售",分类:"销售话术",标题:"销冠都在用的FABE话术3分钟学会",钩子:"销冠不告诉你的FABE话术，3分钟学会立刻能用",要点:"属性-优势-利益-证据；3个行业演示",平台:["小红书","抖音"],目标:"试听课"},
+  {客群:"主播销售",分类:"直播应急",标题:"直播间冷场时主播救场的5个万能话题",钩子:"直播间突然冷场？这5个万能话题随时救场",要点:"互动提问；福利预告；产品故事；用户案例；行业八卦",平台:["抖音","视频号"],目标:"试听课"},
+  {客群:"主播销售",分类:"创业表达",标题:"创业者讲商业模式怎么讲得连小学生都懂",钩子:"投资人说听不懂你的商业模式？用这个公式说人话",要点:"用谁付钱给谁的简化句型；3个独角兽案例拆解",平台:["知乎","公众号"],目标:"加微信咨询"},
+  {客群:"主播销售",分类:"招商演讲",标题:"招商会上做演讲怎么让客户当场签约",钩子:"招商会演讲只讲产品？难怪签约率低！这才是高转化结构",要点:"痛点-愿景-方案-案例-政策的5段结构；真实案例",平台:["知乎","公众号"],目标:"加微信咨询"},
+  {客群:"主播销售",分类:"故事营销",标题:"用故事卖货比直接推销转化率高3倍怎么编故事",钩子:"硬推销转化率5%，故事化卖货能到15%，故事公式是这个",要点:"SCQA故事模型；3个行业改编演示；练习方法",平台:["抖音","小红书"],目标:"试听课"},
+  {客群:"主播销售",分类:"直播互动",标题:"直播间互动率低教你提问5秒法",钩子:"直播间没人评论？因为你的提问方式不对，改成5秒法",要点:"封闭式提问+5秒倒计时+引导扣字；现场话术",平台:["抖音","视频号"],目标:"加微信咨询"}
+];
+
+const PROMPTS = {
+  抖音: {
+    sys: `你是一位深耕「演讲口才培训」赛道的抖音爆款编剧，擅长把专业的表达技巧拆解成 60 秒以内的高完播口播稿。你服务的客户是「面向{客群}的演讲口才培训机构」，最终目的是「{目标}」。
+
+你写出来的稿子必须满足：
+1. 全程口语化，第二人称「你」，绝不出现「我们」「大家」「各位」这种群称。
+2. 短句为主，每句不超过 15 个字，便于配音断句。
+3. 不出现书面词：「然而、因此、综上、此外」一律删掉。
+4. 不出现假大空的总结，案例必须具体到「场景+人物+对白」。
+5. 视频时长 45-60 秒，对应文字约 180-240 字。`,
+    user: `请为以下选题写一条抖音口播稿。
+
+【选题标题】{标题}
+【目标客群】{客群}
+【核心钩子】{钩子}
+【内容要点】{要点}
+【转化目标】{目标}
+
+输出严格按下面 4 段结构，每段单独用 ===== 分隔，不要写解说：
+
+===== 钩子（0-7秒）=====
+（一句话戳痛点，必须包含具体场景或数字，禁止用「今天教你」「学会这个」开头）
+
+===== 反转/暴击（7-20秒）=====
+（说出大多数人正在犯的错，制造认知反差）
+
+===== 干货（20-50秒）=====
+（给出 2-3 个可立刻执行的方法或话术模板，每个方法配一句具体场景示范）
+
+===== 钩子收尾+CTA（50-60秒）=====
+（一句话总结+引导动作。结合转化目标「{目标}」自然引导）
+
+最后单独给出 3 条「视频标题候选」，每条不超过 18 字，必须带数字或反差。`
+  },
+  小红书: {
+    sys: `你是一位小红书爆款笔记操盘手，专注「演讲口才/表达提升」垂类。你服务的客户是面向「{客群}」的演讲口才培训机构，最终转化目标是「{目标}」。
+
+你写出来的笔记必须：
+- 标题 ≤ 20 字，带 1 个数字 + 1 个反差/痛点词
+- 全文 ≤ 800 字，分点清晰
+- 严禁出现"宝子们""集美们"等过度社群化词
+- 不出现"加微信""加V""私聊"等敏感词（用"找我""主页有暗号"替代）`,
+    user: `请为以下选题写一篇小红书爆款笔记。
+
+【选题标题】{标题}
+【目标客群】{客群}
+【核心钩子】{钩子}
+【内容要点】{要点}
+【转化目标】{目标}
+
+输出严格按下面 6 段结构，用 ===== 分隔：
+
+===== 封面大字（首图主标题）=====
+（≤12字，必须含数字或冲突词）
+
+===== 封面副标题 =====
+（≤15字）
+
+===== 笔记标题 =====
+（≤20字，emoji 不超过 1 个，必须含数字 + 痛点词）
+
+===== 正文 =====
+按以下子结构写，分点用 1️⃣ 2️⃣ 3️⃣，整体不超过 800 字：
+
+[开头共鸣段]（80字内，第一人称讲一个具体场景）
+[痛点剖析]（100字内，点出大多数人为什么做不到）
+[干货分点]（每点 80-120 字，错误示范 + 正确做法 + 具体话术）
+[结尾互动钩子]（30字内，开放式问题引导评论）
+
+===== 引导转化句 =====
+根据「{目标}」自然引导，不要硬广
+
+===== 标签 Tags =====
+8-10 个 # 标签：3 泛流量 + 3 客群词 + 2-3 场景长尾词`
+  },
+  知乎: {
+    sys: `你是一位面向「{客群}」的演讲口才领域资深作者，在知乎/公众号有 50万+ 关注，回答平均赞数过千。最终转化目标是「{目标}」。
+
+你写出来的长文必须：
+1. 字数 1500-2500 字，深度优先于篇幅。
+2. 开头 200 字内必须制造"非读不可"的悬念或反常识。
+3. 必须有至少 2 个真实案例（人物+场景+对白+结果）。
+4. 必须有 1 个可复用的"框架/模型/公式"。
+5. 语言专业但不学术，可以用比喻，但不能用网络黑话。`,
+    user: `请为以下选题写一篇知乎长答案/公众号深度文。
+
+【选题标题】{标题}
+【目标客群】{客群}
+【核心钩子】{钩子}
+【内容要点】{要点}
+【转化目标】{目标}
+
+输出严格按下面 7 段结构，用 ## 分隔：
+
+## 标题（≤25字，带反常识或数字）
+## 开篇（200字内：一句话立人设+反常识结论+悬念）
+## 重新定义问题（300-500字：指出大多数人理解错了，给新视角，含1个权威引用）
+## 框架/模型（400-600字：可复用的方法论，3-5个步骤）
+## 真实案例（600-900字：可分2个小案例，每个含背景+对白+结果反差）
+## 总结金句（100字内）
+## 转化引导（150字内：价值前置后再引出「{目标}」）`
+  }
+};
+
+// ============================================================
+// 2. 数据层（localStorage）
+// ============================================================
+
+const STORE_KEY = 'rhetoric_app_data_v1';
+const DEFAULT_STATE = {
+  topics: BUILTIN_TOPICS.map((t, i) => ({...t, id: 'T'+String(i+1).padStart(3,'0')})),
+  generations: [],
+  leads: [],
+  settings: {
+    apiKey: '',
+    provider: 'qwen',
+    model: 'qwen-plus'
+  }
+};
+
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    const data = JSON.parse(raw);
+    // 兼容老数据，补字段
+    return Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), data);
+  } catch(e) {
+    return JSON.parse(JSON.stringify(DEFAULT_STATE));
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+}
+
+function resetState() {
+  state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  saveState();
+}
+
+// ============================================================
+// 3. AI API 调用层
+// ============================================================
+
+const PROVIDERS = {
+  qwen: {
+    name: '通义千问',
+    url: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+    models: ['qwen-plus', 'qwen-turbo', 'qwen-max'],
+    keyHint: 'sk-xxxxxxxxxxxxxxxx，在 https://bailian.console.aliyun.com 创建'
+  },
+  deepseek: {
+    name: 'DeepSeek',
+    url: 'https://api.deepseek.com/chat/completions',
+    models: ['deepseek-chat', 'deepseek-reasoner'],
+    keyHint: 'sk-xxxxxxxxxxxxxxxx，在 https://platform.deepseek.com 创建'
+  },
+  doubao: {
+    name: '豆包',
+    url: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+    models: ['doubao-1-5-pro-32k-250115', 'doubao-1-5-lite-32k-250115'],
+    keyHint: '在 https://console.volcengine.com/ark 创建'
+  }
+};
+
+async function callAI(systemPrompt, userPrompt, opts = {}) {
+  const { apiKey, provider, model } = state.settings;
+  if (!apiKey) throw new Error('请先到「设置」页面填入 API Key');
+  const cfg = PROVIDERS[provider];
+  if (!cfg) throw new Error('未知的服务商：' + provider);
+
+  const resp = await fetch(cfg.url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + apiKey
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: opts.temperature ?? 0.8,
+      max_tokens: opts.maxTokens ?? 2500
+    })
+  });
+
+  if (!resp.ok) {
+    let errMsg = `HTTP ${resp.status}`;
+    try {
+      const err = await resp.json();
+      errMsg = err.error?.message || err.message || errMsg;
+    } catch(e) {}
+    throw new Error('AI 接口报错：' + errMsg);
+  }
+
+  const data = await resp.json();
+  return data.choices?.[0]?.message?.content || '(空响应)';
+}
+
+function fillTemplate(tpl, vars) {
+  return tpl.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+}
+
+async function generateContent(topic, platform) {
+  const platformKey = platform === '抖音' || platform === '视频号' ? '抖音' :
+                      platform === '小红书' ? '小红书' :
+                      '知乎';
+  const tpl = PROMPTS[platformKey];
+  const vars = {
+    客群: topic.客群,
+    标题: topic.标题,
+    钩子: topic.钩子,
+    要点: topic.要点,
+    目标: topic.目标
+  };
+  const sys = fillTemplate(tpl.sys, vars);
+  const user = fillTemplate(tpl.user, vars);
+  const temp = platformKey === '知乎' ? 0.7 : 0.85;
+  const tokens = platformKey === '知乎' ? 3500 : 1800;
+  return await callAI(sys, user, { temperature: temp, maxTokens: tokens });
+}
+
+// ============================================================
+// 4. 通用 UI 工具
+// ============================================================
+
+function toast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast ' + type, 2500);
+}
+
+function openModal(title, bodyHtml, footerHtml) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  document.getElementById('modalFooter').innerHTML = footerHtml || '<button class="btn btn-secondary" onclick="closeModal()">关闭</button>';
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function copyText(text, msg = '已复制') {
+  navigator.clipboard.writeText(text).then(() => toast(msg, 'success'))
+    .catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      toast(msg, 'success');
+    });
+}
+
+function formatTime(ts) {
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ============================================================
+// 5. 路由
+// ============================================================
+
+let currentPage = 'dashboard';
+
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+  const renderer = PAGES[page];
+  if (renderer) renderer();
+}
+
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => navigate(el.dataset.page));
+});
+
+// ============================================================
+// 6. 页面渲染
+// ============================================================
+
+const PAGES = {};
+
+// ---- 仪表盘 ----
+PAGES.dashboard = function() {
+  const today = new Date().toDateString();
+  const todayGen = state.generations.filter(g => new Date(g.time).toDateString() === today).length;
+  const newLeads = state.leads.filter(l => l.status === '新线索').length;
+  const totalGen = state.generations.length;
+  const converted = state.leads.filter(l => l.status === '已成交').length;
+
+  const recentGen = state.generations.slice(-5).reverse();
+  const recentLeads = state.leads.slice(-5).reverse();
+
+  document.getElementById('main').innerHTML = `
+    <div class="page-title">仪表盘</div>
+    <div class="page-desc">今日运营概况，点左侧菜单进入对应模块</div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="label">今日产稿数</div>
+        <div class="value">${todayGen}</div>
+        <div class="delta">建议每日 ≥ 6 篇</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">累计产稿</div>
+        <div class="value">${totalGen}</div>
+        <div class="delta">所有平台合计</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">待跟进线索</div>
+        <div class="value">${newLeads}</div>
+        <div class="delta">24h 内必须跟进</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">已成交</div>
+        <div class="value">${converted}</div>
+        <div class="delta">累计转化数</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🚀 快速开始</h3>
+      <p style="color: #64748b; margin-bottom: 12px; font-size: 13px;">第一次使用请按顺序完成 3 步：</p>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button class="btn btn-primary" onclick="navigate('settings')">① 配置 AI Key</button>
+        <button class="btn btn-secondary" onclick="navigate('topics')">② 浏览选题库 (${state.topics.length})</button>
+        <button class="btn btn-secondary" onclick="navigate('generate')">③ 开始 AI 产稿</button>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div class="card">
+        <h3>📝 最近产出</h3>
+        ${recentGen.length === 0 ? '<div class="empty"><div class="icon">📭</div><div class="text">还没有产出内容</div><button class="btn btn-primary btn-sm" onclick="navigate(\'generate\')">立即开始</button></div>' :
+          recentGen.map(g => `
+            <div style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; cursor: pointer;" onclick="showGeneration('${g.id}')">
+              <div style="font-weight: 500; font-size: 13px;">${escapeHtml(g.topicTitle)}</div>
+              <div style="color: #94a3b8; font-size: 11px; margin-top: 4px;">
+                <span class="tag tag-blue">${g.platform}</span>${formatTime(g.time)}
+              </div>
+            </div>
+          `).join('')}
+      </div>
+
+      <div class="card">
+        <h3>👥 最近线索</h3>
+        ${recentLeads.length === 0 ? '<div class="empty"><div class="icon">📋</div><div class="text">还没有登记线索</div><button class="btn btn-primary btn-sm" onclick="navigate(\'leads\')">登记线索</button></div>' :
+          recentLeads.map(l => `
+            <div style="padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+              <div style="font-weight: 500; font-size: 13px;">${escapeHtml(l.nickname)} <span class="tag tag-gray">${escapeHtml(l.source||'')}</span></div>
+              <div style="color: #94a3b8; font-size: 11px; margin-top: 4px;">
+                <span class="tag status-${({'新线索':'new','跟进中':'following','已成交':'converted','已流失':'lost'})[l.status]||'gray'}">${l.status}</span>
+                ${formatTime(l.createTime)}
+              </div>
+            </div>
+          `).join('')}
+      </div>
+    </div>
+  `;
+};
+
+// ---- 选题库 ----
+let topicFilter = { 客群: '全部', 平台: '全部', 搜索: '' };
+
+PAGES.topics = function() {
+  const groups = ['全部', ...new Set(state.topics.map(t => t.客群))];
+  const platforms = ['全部', '抖音', '视频号', '小红书', '知乎', '公众号'];
+
+  const filtered = state.topics.filter(t => {
+    if (topicFilter.客群 !== '全部' && t.客群 !== topicFilter.客群) return false;
+    if (topicFilter.平台 !== '全部' && !t.平台.includes(topicFilter.平台)) return false;
+    if (topicFilter.搜索 && !(t.标题 + t.钩子 + t.要点).includes(topicFilter.搜索)) return false;
+    return true;
+  });
+
+  document.getElementById('main').innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+      <div>
+        <div class="page-title">选题库</div>
+        <div class="page-desc">共 ${state.topics.length} 条选题，覆盖 3 个客群</div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary" onclick="exportTopics()">📤 导出</button>
+        <button class="btn btn-primary" onclick="openTopicEditor()">+ 新增选题</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="margin-bottom: 12px;">
+        <input type="text" placeholder="🔍 搜索选题标题/钩子/要点" value="${escapeHtml(topicFilter.搜索)}" oninput="topicFilter.搜索=this.value;PAGES.topics()">
+      </div>
+      <div style="margin-bottom: 8px; color: #64748b; font-size: 12px;">客群：</div>
+      <div class="topic-filters">
+        ${groups.map(g => `<div class="filter-pill ${topicFilter.客群===g?'active':''}" onclick="topicFilter.客群='${g}';PAGES.topics()">${g}</div>`).join('')}
+      </div>
+      <div style="margin-bottom: 8px; color: #64748b; font-size: 12px;">平台：</div>
+      <div class="topic-filters">
+        ${platforms.map(p => `<div class="filter-pill ${topicFilter.平台===p?'active':''}" onclick="topicFilter.平台='${p}';PAGES.topics()">${p}</div>`).join('')}
+      </div>
+    </div>
+
+    <div style="color: #94a3b8; font-size: 12px; margin-bottom: 12px;">显示 ${filtered.length} 条</div>
+
+    ${filtered.length === 0 ? '<div class="empty"><div class="icon">📭</div><div class="text">没有匹配的选题</div></div>' :
+      filtered.map(t => `
+        <div class="topic-card">
+          <div class="title">${escapeHtml(t.标题)}</div>
+          <div class="meta">
+            <span class="tag tag-purple">${escapeHtml(t.客群)}</span>
+            <span class="tag tag-gray">${escapeHtml(t.分类)}</span>
+            ${t.平台.map(p => `<span class="tag tag-blue">${escapeHtml(p)}</span>`).join('')}
+            <span class="tag tag-orange">→ ${escapeHtml(t.目标)}</span>
+          </div>
+          <div class="hook">💡 ${escapeHtml(t.钩子)}</div>
+          <div style="margin-top: 6px; font-size: 12px; color: #64748b;">📌 ${escapeHtml(t.要点)}</div>
+          <div class="actions">
+            <button class="btn btn-primary btn-sm" onclick="quickGenerate('${t.id}')">✨ 生成内容</button>
+            <button class="btn btn-secondary btn-sm" onclick="openTopicEditor('${t.id}')">✏️ 编辑</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteTopic('${t.id}')">🗑 删除</button>
+          </div>
+        </div>
+      `).join('')}
+  `;
+};
+
+function openTopicEditor(id) {
+  const t = id ? state.topics.find(x => x.id === id) : { 客群: '职场人', 分类: '', 标题: '', 钩子: '', 要点: '', 平台: ['抖音'], 目标: '试听课' };
+  const isNew = !id;
+  const platformList = ['抖音', '视频号', '小红书', '知乎', '公众号'];
+
+  openModal(
+    isNew ? '新增选题' : '编辑选题',
+    `
+      <div class="form-row">
+        <label>客群</label>
+        <select id="topicAudience">
+          <option ${t.客群==='职场人'?'selected':''}>职场人</option>
+          <option ${t.客群==='宝妈'?'selected':''}>宝妈</option>
+          <option ${t.客群==='主播销售'?'selected':''}>主播销售</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>选题分类</label>
+        <input type="text" id="topicCategory" value="${escapeHtml(t.分类)}" placeholder="例如：汇报演讲 / 克服紧张">
+      </div>
+      <div class="form-row">
+        <label>选题标题</label>
+        <input type="text" id="topicTitle" value="${escapeHtml(t.标题)}" placeholder="不要带问号，例如：领导让你5分钟汇报怎么开头让他眼前一亮">
+      </div>
+      <div class="form-row">
+        <label>核心钩子（一句话戳痛点）</label>
+        <textarea id="topicHook" placeholder="例如：你以为汇报是讲数据？错了，前30秒决定老板要不要听">${escapeHtml(t.钩子)}</textarea>
+      </div>
+      <div class="form-row">
+        <label>内容要点</label>
+        <textarea id="topicPoints" placeholder="例如：三种开场法：数据反差/痛点共鸣/结论先行；3个案例">${escapeHtml(t.要点)}</textarea>
+      </div>
+      <div class="form-row">
+        <label>适合平台（可多选）</label>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          ${platformList.map(p => `
+            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-weight: normal;">
+              <input type="checkbox" class="topicPlatform" value="${p}" ${t.平台.includes(p)?'checked':''}> ${p}
+            </label>
+          `).join('')}
+        </div>
+      </div>
+      <div class="form-row">
+        <label>转化目标</label>
+        <select id="topicGoal">
+          <option ${t.目标==='试听课'?'selected':''}>试听课</option>
+          <option ${t.目标==='加微信咨询'?'selected':''}>加微信咨询</option>
+          <option ${t.目标==='公众号关注'?'selected':''}>公众号关注</option>
+        </select>
+      </div>
+    `,
+    `
+      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveTopic('${id||''}')">保存</button>
+    `
+  );
+}
+
+function saveTopic(id) {
+  const topic = {
+    客群: document.getElementById('topicAudience').value,
+    分类: document.getElementById('topicCategory').value.trim(),
+    标题: document.getElementById('topicTitle').value.trim(),
+    钩子: document.getElementById('topicHook').value.trim(),
+    要点: document.getElementById('topicPoints').value.trim(),
+    平台: Array.from(document.querySelectorAll('.topicPlatform:checked')).map(c => c.value),
+    目标: document.getElementById('topicGoal').value
+  };
+  if (!topic.标题) { toast('请填写选题标题', 'error'); return; }
+  if (topic.平台.length === 0) { toast('请至少选一个平台', 'error'); return; }
+
+  if (id) {
+    const idx = state.topics.findIndex(t => t.id === id);
+    state.topics[idx] = {...state.topics[idx], ...topic};
+  } else {
+    const newId = 'T' + Date.now();
+    state.topics.unshift({ ...topic, id: newId });
+  }
+  saveState();
+  closeModal();
+  toast('已保存', 'success');
+  PAGES.topics();
+}
+
+function deleteTopic(id) {
+  if (!confirm('确认删除此选题？')) return;
+  state.topics = state.topics.filter(t => t.id !== id);
+  saveState();
+  toast('已删除', 'success');
+  PAGES.topics();
+}
+
+function exportTopics() {
+  const blob = new Blob([JSON.stringify(state.topics, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `选题库_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('已导出', 'success');
+}
+
+// ---- AI 产稿 ----
+let genState = {
+  selectedTopicId: null,
+  selectedPlatforms: ['抖音', '小红书', '知乎'],
+  results: {},
+  loading: false
+};
+
+function quickGenerate(topicId) {
+  genState.selectedTopicId = topicId;
+  genState.results = {};
+  navigate('generate');
+}
+
+PAGES.generate = function() {
+  const topic = state.topics.find(t => t.id === genState.selectedTopicId);
+  const allPlatforms = ['抖音', '小红书', '知乎'];
+
+  document.getElementById('main').innerHTML = `
+    <div class="page-title">AI 产稿</div>
+    <div class="page-desc">选择选题 + 平台 → AI 一键生成 → 微调 → 复制发布</div>
+
+    <div class="gen-layout">
+      <div>
+        <div class="card">
+          <h3>① 选择选题</h3>
+          ${topic ? `
+            <div style="padding: 12px; background: #fef2f2; border-radius: 6px; margin-bottom: 12px;">
+              <div style="font-weight: 500; margin-bottom: 6px;">${escapeHtml(topic.标题)}</div>
+              <div style="font-size: 11px; color: #64748b;">
+                <span class="tag tag-purple">${escapeHtml(topic.客群)}</span>
+                <span class="tag tag-orange">→ ${escapeHtml(topic.目标)}</span>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="openTopicPicker()">🔄 换一个</button>
+          ` : `
+            <div class="empty" style="padding: 20px;">
+              <div class="text">还没选选题</div>
+              <button class="btn btn-primary btn-sm" onclick="openTopicPicker()">从选题库挑一个</button>
+            </div>
+          `}
+        </div>
+
+        <div class="card">
+          <h3>② 选择平台</h3>
+          ${allPlatforms.map(p => `
+            <label style="display: flex; align-items: center; gap: 8px; padding: 8px 0; cursor: pointer;">
+              <input type="checkbox" class="genPlatform" value="${p}" ${genState.selectedPlatforms.includes(p)?'checked':''} onchange="updateSelectedPlatforms()">
+              <span>${p}${p==='抖音'?'/视频号':p==='知乎'?'/公众号':''}</span>
+            </label>
+          `).join('')}
+        </div>
+
+        <div class="card">
+          <h3>③ 一键生成</h3>
+          <button class="btn btn-primary" style="width: 100%;" onclick="runGenerate()" ${!topic || genState.loading ? 'disabled' : ''}>
+            ${genState.loading ? '⏳ 正在生成...' : '✨ 开始生成 ('+genState.selectedPlatforms.length+' 个平台)'}
+          </button>
+          <div class="hint" style="margin-top: 10px; color: #94a3b8; font-size: 11px;">
+            💡 单次生成约 10-30 秒，会同步保存到「历史记录」
+          </div>
+        </div>
+      </div>
+
+      <div class="gen-output">
+        ${Object.keys(genState.results).length === 0 ? (
+          genState.loading ? '<div class="gen-loading">AI 正在创作中</div>' :
+          '<div class="gen-empty"><div class="icon">✨</div><div>选好选题和平台，点击生成按钮，结果将显示在这里</div></div>'
+        ) : `
+          <div class="gen-tabs">
+            ${Object.keys(genState.results).map((p, i) => `
+              <div class="gen-tab ${i===0?'active':''}" data-tab="${p}" onclick="switchGenTab('${p}')">${p}</div>
+            `).join('')}
+          </div>
+          <div id="genTabContent">
+            ${Object.entries(genState.results).map(([p, content], i) => `
+              <div class="gen-tab-pane" data-tab="${p}" style="${i===0?'':'display:none'}">
+                <div style="display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 10px;">
+                  <button class="btn btn-secondary btn-sm" onclick="copyText(document.querySelector('[data-tab=\\'${p}\\'] .gen-result').textContent, '已复制 ${p} 内容')">📋 复制</button>
+                  <button class="btn btn-secondary btn-sm" onclick="regenerate('${p}')">🔄 重新生成</button>
+                </div>
+                <div class="gen-result">${escapeHtml(content)}</div>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </div>
+    </div>
+  `;
+};
+
+function updateSelectedPlatforms() {
+  genState.selectedPlatforms = Array.from(document.querySelectorAll('.genPlatform:checked')).map(c => c.value);
+}
+
+function switchGenTab(p) {
+  document.querySelectorAll('.gen-tab').forEach(el => el.classList.toggle('active', el.dataset.tab === p));
+  document.querySelectorAll('.gen-tab-pane').forEach(el => el.style.display = el.dataset.tab === p ? '' : 'none');
+}
+
+function openTopicPicker() {
+  const html = state.topics.slice(0, 60).map(t => `
+    <div class="topic-card" onclick="pickTopic('${t.id}')" style="cursor: pointer;">
+      <div class="title">${escapeHtml(t.标题)}</div>
+      <div class="meta">
+        <span class="tag tag-purple">${escapeHtml(t.客群)}</span>
+        <span class="tag tag-gray">${escapeHtml(t.分类)}</span>
+        ${t.平台.slice(0,3).map(p => `<span class="tag tag-blue">${escapeHtml(p)}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+  openModal('挑一个选题', html, '<button class="btn btn-secondary" onclick="closeModal()">取消</button>');
+}
+
+function pickTopic(id) {
+  genState.selectedTopicId = id;
+  genState.results = {};
+  closeModal();
+  PAGES.generate();
+}
+
+async function runGenerate() {
+  const topic = state.topics.find(t => t.id === genState.selectedTopicId);
+  if (!topic) { toast('请先选择选题', 'error'); return; }
+  if (genState.selectedPlatforms.length === 0) { toast('请至少选一个平台', 'error'); return; }
+  if (!state.settings.apiKey) { toast('请先到「设置」配置 API Key', 'error'); navigate('settings'); return; }
+
+  genState.loading = true;
+  genState.results = {};
+  PAGES.generate();
+
+  for (const platform of genState.selectedPlatforms) {
+    try {
+      const content = await generateContent(topic, platform);
+      genState.results[platform] = content;
+      state.generations.unshift({
+        id: 'G' + Date.now() + Math.random().toString(36).slice(2,6),
+        topicId: topic.id,
+        topicTitle: topic.标题,
+        platform: platform,
+        content: content,
+        time: Date.now()
+      });
+      saveState();
+      PAGES.generate();
+    } catch(e) {
+      genState.results[platform] = '❌ 生成失败：' + e.message;
+      PAGES.generate();
+    }
+  }
+  genState.loading = false;
+  PAGES.generate();
+  toast('生成完成', 'success');
+}
+
+async function regenerate(platform) {
+  const topic = state.topics.find(t => t.id === genState.selectedTopicId);
+  if (!topic) return;
+  genState.results[platform] = '';
+  PAGES.generate();
+  try {
+    const content = await generateContent(topic, platform);
+    genState.results[platform] = content;
+    state.generations.unshift({
+      id: 'G' + Date.now() + Math.random().toString(36).slice(2,6),
+      topicId: topic.id,
+      topicTitle: topic.标题,
+      platform: platform,
+      content: content,
+      time: Date.now()
+    });
+    saveState();
+    PAGES.generate();
+    toast('已重新生成', 'success');
+  } catch(e) {
+    genState.results[platform] = '❌ 生成失败：' + e.message;
+    PAGES.generate();
+  }
+}
+
+// ---- 历史记录 ----
+PAGES.history = function() {
+  document.getElementById('main').innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+      <div>
+        <div class="page-title">历史记录</div>
+        <div class="page-desc">共 ${state.generations.length} 篇产出</div>
+      </div>
+      ${state.generations.length > 0 ? '<button class="btn btn-danger" onclick="clearHistory()">清空全部</button>' : ''}
+    </div>
+
+    ${state.generations.length === 0 ? '<div class="empty"><div class="icon">📝</div><div class="text">还没有产出记录</div><button class="btn btn-primary" onclick="navigate(\'generate\')">立即生成</button></div>' :
+      state.generations.map(g => `
+        <div class="card" style="cursor: pointer;" onclick="showGeneration('${g.id}')">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="flex: 1;">
+              <div style="font-weight: 500; margin-bottom: 6px;">${escapeHtml(g.topicTitle)}</div>
+              <div style="font-size: 12px;">
+                <span class="tag tag-blue">${escapeHtml(g.platform)}</span>
+                <span style="color: #94a3b8;">${formatTime(g.time)}</span>
+              </div>
+              <div style="margin-top: 8px; color: #64748b; font-size: 12px; max-height: 40px; overflow: hidden;">
+                ${escapeHtml(g.content.slice(0, 120))}...
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+  `;
+};
+
+function showGeneration(id) {
+  const g = state.generations.find(x => x.id === id);
+  if (!g) return;
+  openModal(
+    g.topicTitle + ' · ' + g.platform,
+    `
+      <div style="color: #94a3b8; font-size: 12px; margin-bottom: 12px;">${formatTime(g.time)}</div>
+      <div class="gen-result" style="background: #f8fafc; padding: 16px; border-radius: 6px; white-space: pre-wrap; max-height: 500px; overflow-y: auto;">${escapeHtml(g.content)}</div>
+    `,
+    `
+      <button class="btn btn-secondary" onclick="closeModal()">关闭</button>
+      <button class="btn btn-danger" onclick="deleteGeneration('${id}')">删除</button>
+      <button class="btn btn-primary" onclick="copyText(${JSON.stringify(g.content)}, '已复制')">📋 复制内容</button>
+    `
+  );
+}
+
+function deleteGeneration(id) {
+  if (!confirm('确认删除这条记录？')) return;
+  state.generations = state.generations.filter(g => g.id !== id);
+  saveState();
+  closeModal();
+  PAGES.history();
+  toast('已删除', 'success');
+}
+
+function clearHistory() {
+  if (!confirm('确认清空所有历史记录？此操作不可恢复')) return;
+  state.generations = [];
+  saveState();
+  PAGES.history();
+  toast('已清空', 'success');
+}
+
+// ---- 线索管理 ----
+PAGES.leads = function() {
+  document.getElementById('main').innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+      <div>
+        <div class="page-title">线索管理</div>
+        <div class="page-desc">所有平台来的线索统一管理，A 级 24h 内必跟进</div>
+      </div>
+      <button class="btn btn-primary" onclick="openLeadEditor()">+ 登记线索</button>
+    </div>
+
+    ${state.leads.length === 0 ? '<div class="empty"><div class="icon">👥</div><div class="text">还没有线索<br><span style="font-size: 12px;">用户在评论/私信触发关键词后，手动登记到这里</span></div></div>' : `
+      <div class="card" style="padding: 0;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>昵称</th><th>来源</th><th>客群</th><th>等级</th><th>状态</th><th>登记时间</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${state.leads.map(l => `
+              <tr>
+                <td><strong>${escapeHtml(l.nickname)}</strong>${l.wechat?'<div style="color:#94a3b8;font-size:11px;">'+escapeHtml(l.wechat)+'</div>':''}</td>
+                <td>${escapeHtml(l.source||'-')}</td>
+                <td>${escapeHtml(l.audience||'-')}</td>
+                <td><span class="tag ${l.level==='A'?'tag-orange':l.level==='B'?'tag-blue':'tag-gray'}">${escapeHtml(l.level||'-')}</span></td>
+                <td><span class="tag status-${({'新线索':'new','跟进中':'following','已成交':'converted','已流失':'lost'})[l.status]||'gray'}">${escapeHtml(l.status)}</span></td>
+                <td style="color:#94a3b8;font-size:12px;">${formatTime(l.createTime)}</td>
+                <td>
+                  <button class="btn btn-ghost btn-sm" onclick="openLeadEditor('${l.id}')">编辑</button>
+                  <button class="btn btn-ghost btn-sm" onclick="deleteLead('${l.id}')">删除</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `}
+  `;
+};
+
+function openLeadEditor(id) {
+  const l = id ? state.leads.find(x => x.id === id) : { nickname:'', wechat:'', source:'抖音', audience:'职场人', level:'B', status:'新线索', note:'' };
+  openModal(
+    id ? '编辑线索' : '登记新线索',
+    `
+      <div class="form-grid">
+        <div class="form-row">
+          <label>昵称 *</label>
+          <input type="text" id="leadNickname" value="${escapeHtml(l.nickname)}" placeholder="抖音/小红书账号昵称">
+        </div>
+        <div class="form-row">
+          <label>微信/手机</label>
+          <input type="text" id="leadWechat" value="${escapeHtml(l.wechat||'')}" placeholder="可填可不填">
+        </div>
+        <div class="form-row">
+          <label>来源平台</label>
+          <select id="leadSource">
+            ${['抖音','视频号','小红书','知乎','公众号','其他'].map(s => `<option ${l.source===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-row">
+          <label>意向客群</label>
+          <select id="leadAudience">
+            ${['职场人','宝妈','主播销售'].map(s => `<option ${l.audience===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-row">
+          <label>意向等级</label>
+          <select id="leadLevel">
+            <option value="A" ${l.level==='A'?'selected':''}>A 高（24h必跟）</option>
+            <option value="B" ${l.level==='B'?'selected':''}>B 中</option>
+            <option value="C" ${l.level==='C'?'selected':''}>C 观察</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>跟进状态</label>
+          <select id="leadStatus">
+            ${['新线索','跟进中','已成交','已流失'].map(s => `<option ${l.status===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>跟进备注</label>
+        <textarea id="leadNote" placeholder="客户反馈、跟进进展、约课情况...">${escapeHtml(l.note||'')}</textarea>
+      </div>
+    `,
+    `
+      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveLead('${id||''}')">保存</button>
+    `
+  );
+}
+
+function saveLead(id) {
+  const lead = {
+    nickname: document.getElementById('leadNickname').value.trim(),
+    wechat: document.getElementById('leadWechat').value.trim(),
+    source: document.getElementById('leadSource').value,
+    audience: document.getElementById('leadAudience').value,
+    level: document.getElementById('leadLevel').value,
+    status: document.getElementById('leadStatus').value,
+    note: document.getElementById('leadNote').value.trim()
+  };
+  if (!lead.nickname) { toast('请填写昵称', 'error'); return; }
+  if (id) {
+    const idx = state.leads.findIndex(x => x.id === id);
+    state.leads[idx] = {...state.leads[idx], ...lead};
+  } else {
+    state.leads.unshift({...lead, id: 'L' + Date.now(), createTime: Date.now()});
+  }
+  saveState();
+  closeModal();
+  toast('已保存', 'success');
+  PAGES.leads();
+}
+
+function deleteLead(id) {
+  if (!confirm('确认删除此线索？')) return;
+  state.leads = state.leads.filter(l => l.id !== id);
+  saveState();
+  toast('已删除', 'success');
+  PAGES.leads();
+}
+
+// ---- 设置 ----
+PAGES.settings = function() {
+  document.getElementById('main').innerHTML = `
+    <div class="page-title">设置</div>
+    <div class="page-desc">配置 AI 服务，数据备份与恢复</div>
+
+    <div class="card">
+      <h3>🔑 AI 服务配置</h3>
+      <div class="form-row">
+        <label>选择服务商</label>
+        <select id="settingProvider" onchange="onProviderChange()">
+          ${Object.entries(PROVIDERS).map(([k,v]) => `<option value="${k}" ${state.settings.provider===k?'selected':''}>${v.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-row">
+        <label>选择模型</label>
+        <select id="settingModel">
+          ${PROVIDERS[state.settings.provider].models.map(m => `<option ${state.settings.model===m?'selected':''}>${m}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-row">
+        <label>API Key</label>
+        <input type="password" id="settingApiKey" value="${escapeHtml(state.settings.apiKey)}" placeholder="${PROVIDERS[state.settings.provider].keyHint}">
+        <div class="hint">Key 仅保存在你的浏览器本地，不会上传到任何服务器</div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-primary" onclick="saveSettings()">保存</button>
+        <button class="btn btn-secondary" onclick="testConnection()">🧪 测试连接</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📦 数据备份与恢复</h3>
+      <p style="color: #64748b; font-size: 13px; margin-bottom: 12px;">所有数据存在浏览器本地，建议每周导出一份 JSON 备份。换电脑/换浏览器时导入即可。</p>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary" onclick="exportAll()">📤 导出全部数据</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📥 导入数据</button>
+        <button class="btn btn-danger" onclick="resetAllData()">⚠️ 重置全部数据</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importAll(this.files[0])">
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🆘 申请 API Key 教程</h3>
+      <div style="font-size: 13px; color: #475569; line-height: 1.9;">
+        <p><strong>通义千问（推荐，新用户 100 万 token 免费）</strong></p>
+        <p>① 注册阿里云账号 → 实名认证</p>
+        <p>② 访问 <code>bailian.console.aliyun.com</code> 开通"百炼"服务</p>
+        <p>③ API-KEY 管理 → 创建 API-KEY → 复制粘贴到上方</p>
+        <p style="margin-top: 10px;"><strong>DeepSeek（最便宜，约 1 元 / 200 篇）</strong></p>
+        <p>① 注册 <code>platform.deepseek.com</code></p>
+        <p>② 充值 10 元（可用很久）→ 创建 API key</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>ℹ️ 关于本工具</h3>
+      <div style="font-size: 13px; color: #64748b; line-height: 1.9;">
+        <p>当前版本：v1.0</p>
+        <p>当前数据：${state.topics.length} 条选题 / ${state.generations.length} 篇内容 / ${state.leads.length} 个线索</p>
+        <p>使用建议：每天上午 9 点产稿 + 中午发布 + 下午监听评论；每周日复盘数据</p>
+      </div>
+    </div>
+  `;
+};
+
+function onProviderChange() {
+  const p = document.getElementById('settingProvider').value;
+  const select = document.getElementById('settingModel');
+  select.innerHTML = PROVIDERS[p].models.map(m => `<option>${m}</option>`).join('');
+  document.getElementById('settingApiKey').placeholder = PROVIDERS[p].keyHint;
+}
+
+function saveSettings() {
+  state.settings.provider = document.getElementById('settingProvider').value;
+  state.settings.model = document.getElementById('settingModel').value;
+  state.settings.apiKey = document.getElementById('settingApiKey').value.trim();
+  saveState();
+  toast('已保存', 'success');
+}
+
+async function testConnection() {
+  saveSettings();
+  if (!state.settings.apiKey) { toast('请先填入 API Key', 'error'); return; }
+  toast('正在测试...');
+  try {
+    const r = await callAI('你是一个测试助手', '请只回复"连接成功"四个字', { maxTokens: 50 });
+    toast('✅ ' + r.slice(0, 30), 'success');
+  } catch(e) {
+    toast('❌ ' + e.message, 'error');
+  }
+}
+
+function exportAll() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `演讲口才获客助手_备份_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('已导出', 'success');
+}
+
+function importAll(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!confirm('确认导入？将覆盖当前所有数据')) return;
+      state = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), data);
+      saveState();
+      toast('导入成功', 'success');
+      PAGES.settings();
+    } catch(err) {
+      toast('文件格式错误', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetAllData() {
+  if (!confirm('确认重置？将清空所有选题、产出、线索，恢复出厂默认 55 个选题。此操作不可恢复')) return;
+  resetState();
+  toast('已重置', 'success');
+  navigate('dashboard');
+}
+
+// ============================================================
+// 7. 初始化
+// ============================================================
+
+navigate('dashboard');
+
+// 首次提示
+if (!state.settings.apiKey) {
+  setTimeout(() => {
+    toast('👋 首次使用请到「设置」配置 AI Key', '');
+  }, 600);
+}
+</script>
+</body>
+</html>
