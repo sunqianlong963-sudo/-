@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+config/config.yaml
+config/cookies.json
+data/*.json
+data/*.jsonl
+!data/.gitkeep
+.playwright/
+node_modules/
+.DS_Store

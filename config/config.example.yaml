@@ -1,0 +1,43 @@
+# 小红书爆款抓取 + 飞书同步配置
+# 复制为 config.yaml 后填入实际值；线上部署改用环境变量 / GitHub Secrets。
+
+xiaohongshu:
+  # 搜索关键词（任一命中即纳入候选池）
+  keywords:
+    - 演讲
+    - 口才
+    - 表达力
+    - 沟通技巧
+    - 即兴表达
+    - 公众演讲
+    - 演讲技巧
+    - 当众讲话
+  # 候选笔记上限（每个关键词抓多少条进入筛选）
+  per_keyword_limit: 40
+  # 仅保留最近 N 小时内发布的笔记
+  recent_hours: 24
+  # 低粉门槛：作者粉丝数上限
+  max_fans: 5000
+  # 爆款门槛（满足任一即可）
+  viral_thresholds:
+    min_likes: 1000          # 点赞数
+    min_interactions: 1500   # 点赞 + 收藏 + 评论
+  # 最终送进分析/仿写的爆款数量上限
+  top_n: 15
+
+generation:
+  # 仿写笔记数量
+  count: 10
+  # 使用的 Claude 模型
+  model: claude-opus-4-7
+  # 单篇生成的最大 token
+  max_tokens: 2000
+
+feishu:
+  # 飞书多维表格 app_token（URL 中 base/<app_token>/...）
+  app_token: REPLACE_ME
+  # 表格 table_id（URL 参数 ?table=<table_id> 或开放平台 API 查询）
+  table_id: REPLACE_ME
+
+# 北京时间运行时间（仅供 GitHub Actions cron 参考，实际由 workflow 控制）
+schedule_cn: "07:00"
