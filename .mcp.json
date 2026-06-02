@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "feishu": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@larksuiteoapi/lark-mcp",
+        "mcp",
+        "-t",
+        "preset.default,preset.im.default,preset.base.default,preset.doc.default,preset.calendar.default"
+      ],
+      "env": {
+        "APP_ID": "${FEISHU_APP_ID}",
+        "APP_SECRET": "${FEISHU_APP_SECRET}"
+      }
+    }
+  }
+}
