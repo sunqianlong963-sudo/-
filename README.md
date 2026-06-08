@@ -8,14 +8,20 @@
 
 ## 在线使用
 
-部署在 GitHub Pages：
-
 > https://sunqianlong963-sudo.github.io/-/
 
-## 部署说明
+## 如何开启在线链接（首次，约 1 分钟）
 
-本仓库已配置 GitHub Actions 自动部署（`.github/workflows/deploy-pages.yml`）。
-若首次部署需要手动开启，可在仓库 **Settings → Pages → Build and deployment → Source**
-选择 **GitHub Actions** 即可。
+GitHub 静态托管（Pages）首次需要在网页上手动开启一次：
 
-整个工具就是单个 `index.html`，也可以直接用任意静态托管（如把文件拖到对象存储 / 任意虚拟主机）。
+1. 打开仓库 **Settings（设置）→ 左侧 Pages**
+2. **Build and deployment → Source** 选择 **Deploy from a branch（从分支部署）**
+3. **Branch** 选择 `claude/quirky-cray-L93jQ`，文件夹保持 `/ (root)`，点 **Save**
+4. 等 1～2 分钟，刷新该页面，顶部会出现网址：
+   `https://sunqianlong963-sudo.github.io/-/`
+
+开启后，以后只要往该分支推送改动，页面会自动重新发布，无需再设置。
+
+## 其他部署方式
+
+整个工具就是单个 `index.html`，也可以直接拖到任意静态托管（对象存储、虚拟主机、Vercel、Netlify 等）使用。
