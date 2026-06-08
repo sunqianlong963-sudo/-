@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>口才能力测评 · 测出你卡在哪一关</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --paper:#F4EFE6; --card:#FCFAF5; --ink:#2A2520; --ink2:#6E655A; --ink3:#A39A8C;
+    --accent:#C2603A; --accent-d:#A84E2C; --accent-bg:#F3E4DA; --accent-soft:#E4BBA4;
+    --good:#5F7A48; --good-bg:#EDF1E5; --good-line:#D9E3C9;
+    --line:#E8DECE; --line-d:#DACFBC;
+    --serif:"Songti SC","STSong",Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+    --shadow:0 8px 30px rgba(42,37,32,.07);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{font-family:var(--sans); color:var(--ink); line-height:1.7; background:var(--paper);
+    background-image:radial-gradient(circle at 12% 6%,rgba(194,96,58,.05),transparent 40%),radial-gradient(circle at 90% 96%,rgba(110,101,90,.05),transparent 42%);
+    min-height:100%; display:flex; justify-content:center; padding:0 18px; -webkit-font-smoothing:antialiased;}
+  .wrap{width:100%; max-width:460px; padding:34px 0 60px; display:flex; flex-direction:column; min-height:100vh;}
+  .kicker{font-size:13px; letter-spacing:3px; color:var(--accent); font-weight:600;}
+  .rule{width:54px; height:3px; background:var(--accent); border-radius:2px; margin:14px 0 0;}
+  .screen{animation:up .45s cubic-bezier(.2,.7,.3,1) both;}
+  @keyframes up{from{opacity:0; transform:translateY(14px);}to{opacity:1; transform:none;}}
+
+  .intro{flex:1; display:flex; flex-direction:column; justify-content:center;}
+  .intro h1{font-family:var(--serif); font-weight:700; font-size:34px; line-height:1.32; letter-spacing:.5px; margin:34px 0 0;}
+  .intro h1 em{font-style:normal; color:var(--accent);}
+  .intro .sub{color:var(--ink2); font-size:15.5px; margin-top:20px;}
+  .meta{display:flex; gap:8px; flex-wrap:wrap; margin-top:26px;}
+  .pill{font-size:13px; color:var(--ink2); background:var(--card); border:1px solid var(--line); border-radius:999px; padding:7px 14px;}
+  .namebox{margin-top:22px;}
+  .namebox label{font-size:13px; color:var(--ink3); letter-spacing:1px;}
+  .namebox input{width:100%; margin-top:8px; font-family:var(--sans); font-size:16px; color:var(--ink); background:var(--card); border:1.5px solid var(--line); border-radius:13px; padding:14px 16px; outline:none;}
+  .namebox input:focus{border-color:var(--accent);}
+  .note{font-size:13px; color:var(--ink3); margin-top:18px;}
+  .btn{display:block; width:100%; border:none; cursor:pointer; background:var(--accent); color:#fff; font-family:var(--sans); font-weight:600; font-size:17px; padding:17px; border-radius:15px; margin-top:26px; letter-spacing:.5px; box-shadow:0 8px 22px rgba(194,96,58,.28); transition:transform .15s, box-shadow .15s, opacity .15s;}
+  .btn:active{transform:translateY(1px) scale(.995);}
+  .btn:disabled{opacity:.4; box-shadow:none; cursor:default;}
+  .footer{text-align:center; font-size:12px; color:var(--ink3); margin-top:34px; letter-spacing:.5px;}
+
+  .top{display:flex; align-items:center; gap:14px; margin-bottom:30px;}
+  .back{font-size:14px; color:var(--ink3); background:none; border:none; cursor:pointer; padding:4px 0; white-space:nowrap;}
+  .back:disabled{opacity:0; pointer-events:none;}
+  .track{flex:1; height:6px; background:var(--line); border-radius:99px; overflow:hidden;}
+  .fill{height:100%; background:var(--accent); border-radius:99px; transition:width .35s cubic-bezier(.3,.8,.3,1); width:0;}
+  .count{font-size:13px; color:var(--ink2); font-variant-numeric:tabular-nums; white-space:nowrap;}
+
+  .q{flex:1; display:flex; flex-direction:column;}
+  .qtag{font-size:13px; letter-spacing:2px; color:var(--accent); font-weight:600; margin-bottom:14px;}
+  .qtext{font-family:var(--serif); font-weight:600; font-size:24px; line-height:1.5; letter-spacing:.3px; margin-bottom:30px;}
+  .opts{display:flex; flex-direction:column; gap:12px;}
+  .opt{text-align:left; cursor:pointer; background:var(--card); border:1.5px solid var(--line); border-radius:14px; padding:16px 18px; font-family:var(--sans); font-size:16px; color:var(--ink); transition:border-color .15s, background .15s, transform .12s; display:flex; align-items:center; gap:12px;}
+  .opt:active{transform:scale(.99);}
+  .opt .dot{width:20px; height:20px; border-radius:50%; border:2px solid var(--line-d); flex:none; transition:all .15s; display:flex; align-items:center; justify-content:center;}
+  .opt.sel{border-color:var(--accent); background:var(--accent-bg);}
+  .opt.sel .dot{border-color:var(--accent); background:var(--accent);}
+  .opt.sel .dot::after{content:""; width:7px; height:7px; border-radius:50%; background:#fff;}
+
+  .res{display:flex; flex-direction:column;}
+  .eyebrow{font-size:13px; letter-spacing:2px; color:var(--accent); font-weight:600; margin-bottom:14px;}
+
+  .report{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:26px 24px 24px; box-shadow:var(--shadow);}
+  .rhead{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .rhead .rt{font-family:var(--serif); font-weight:700; font-size:21px; letter-spacing:.5px;}
+  .rhead .seal{font-size:11px; color:#fff; background:var(--accent); border-radius:6px; padding:4px 9px; letter-spacing:1px; white-space:nowrap;}
+  .rmeta{font-size:12.5px; color:var(--ink3); margin-top:10px; letter-spacing:.5px;}
+  .rdiv{height:1px; background:var(--line); margin:16px 0;}
+  .summary{font-size:15.5px; color:var(--ink); line-height:1.65; background:var(--accent-bg); border-radius:13px; padding:15px 16px;}
+  .summary b{color:var(--accent-d); font-weight:600;}
+  .rconc{margin-top:18px;}
+  .rlabel{font-size:12px; color:var(--ink3); letter-spacing:2px;}
+  .rconc .nm{font-family:var(--serif); font-weight:700; font-size:32px; color:var(--accent); margin:6px 0 8px; letter-spacing:1px;}
+  .rconc .one{font-size:15.5px; color:var(--ink);}
+  .rconc .mod{font-size:12.5px; color:var(--accent-d); margin-top:10px; background:var(--accent-bg); display:inline-block; padding:5px 11px; border-radius:8px;}
+  .rconc .pre{font-size:13.5px; color:var(--ink2); margin-top:10px;}
+  .caps{display:flex; gap:10px; flex-wrap:wrap; margin:16px 0 2px;}
+  .cap{font-size:13.5px; padding:9px 13px; border-radius:11px; border:1px solid var(--line);}
+  .cap.good{color:var(--good); background:var(--good-bg); border-color:var(--good-line);}
+  .cap.warn{color:var(--accent-d); background:var(--accent-bg); border-color:var(--accent-soft);}
+  .bars{margin-top:18px;}
+  .bars h4,.path-sec h4{font-size:14px; font-weight:700; margin-bottom:15px;}
+  .bar{margin-bottom:14px;}
+  .bar .row{display:flex; justify-content:space-between; align-items:center; font-size:14px; margin-bottom:6px;}
+  .bar .nm{color:var(--ink2); display:flex; align-items:center;}
+  .bar.hot .nm{color:var(--accent); font-weight:600;}
+  .bar .tg{font-size:10.5px; color:#fff; background:var(--accent); border-radius:5px; padding:2px 7px; margin-left:8px; letter-spacing:.5px;}
+  .bar .pc{color:var(--ink3); font-variant-numeric:tabular-nums;}
+  .bar.hot .pc{color:var(--accent); font-weight:600;}
+  .bar .bt{height:11px; background:var(--line); border-radius:99px; overflow:hidden;}
+  .bar .bf{height:100%; width:0; border-radius:99px; background:var(--accent-soft); transition:width .9s cubic-bezier(.2,.8,.2,1);}
+  .bar.hot .bf{background:var(--accent);}
+  .barnote{font-size:12px; color:var(--ink3); margin-top:12px;}
+
+  .path-sec{margin-top:6px;}
+  .path{display:flex; gap:5px;}
+  .path .st{flex:1; text-align:center; font-size:11.5px; padding:10px 3px; border-radius:9px; border:1px solid var(--line); color:var(--ink3); background:var(--card); line-height:1.25;}
+  .path .st.done{color:var(--accent-d); border-color:var(--accent-soft); background:var(--accent-bg);}
+  .path .st.cur{color:#fff; background:var(--accent); border-color:var(--accent); font-weight:600;}
+  .pathmark{text-align:center; font-size:11px; color:var(--accent); margin-top:6px; letter-spacing:1px;}
+  .pathcap{font-size:13.5px; color:var(--ink2); margin-top:12px; line-height:1.6;}
+  .pathcap b{color:var(--accent-d);}
+
+  .rsec h4{font-size:14px; font-weight:700; margin-bottom:6px;}
+  .rsec p{font-size:14.5px; color:var(--ink2); line-height:1.6;}
+  .tips{margin-top:13px; display:flex; flex-direction:column; gap:10px;}
+  .tip{display:flex; gap:10px; font-size:14.5px; color:var(--ink); line-height:1.5;}
+  .tip .i{color:var(--accent); font-weight:700; flex:none;}
+  .also{margin-top:13px; font-size:14px; color:var(--ink2); background:var(--good-bg); border-radius:11px; padding:11px 13px;}
+  .rfoot{margin-top:18px; padding-top:14px; border-top:1px solid var(--line); font-size:11.5px; color:var(--ink3); line-height:1.5; letter-spacing:.3px;}
+  .rfoot b{color:var(--accent); font-weight:600;}
+
+  .save{display:block; width:100%; border:1.5px solid var(--accent); background:var(--card); color:var(--accent); cursor:pointer; font-family:var(--sans); font-weight:600; font-size:15.5px; padding:14px; border-radius:13px; margin-top:16px;}
+  .save:active{background:var(--accent-bg);}
+  .cta{background:linear-gradient(160deg,#2F2922,#3C342B); color:#F4EFE6; border-radius:20px; padding:26px 24px; margin-top:18px;}
+  .cta .ct{font-family:var(--serif); font-weight:700; font-size:23px; line-height:1.45; color:#fff;}
+  .cta .cb{font-size:15px; color:#D8CFC1; margin-top:14px; line-height:1.65;}
+  .cta .cb b{color:#F0C9B4; font-weight:600;}
+  .cta .action{margin-top:20px; background:var(--accent); color:#fff; text-align:center; font-weight:600; font-size:16.5px; padding:15px; border-radius:13px; letter-spacing:.5px;}
+  .cta .small{font-size:12.5px; color:#A99E8E; text-align:center; margin-top:12px;}
+  .restart{background:none; border:none; color:var(--ink3); font-size:14px; text-decoration:underline; cursor:pointer; margin:22px auto 0; padding:8px; display:block;}
+
+  .ov{position:fixed; inset:0; background:rgba(28,24,20,.92); z-index:99; display:flex; flex-direction:column; align-items:center; padding:24px 18px; overflow:auto;}
+  .ov .tip2{color:#F4EFE6; font-size:15px; margin:6px 0 16px; text-align:center;}
+  .ov img{width:100%; max-width:420px; border-radius:14px; box-shadow:0 10px 40px rgba(0,0,0,.4);}
+  .ov .row{display:flex; gap:12px; margin-top:18px;}
+  .ov a,.ov button{font-family:var(--sans); font-size:15px; font-weight:600; padding:12px 22px; border-radius:12px; border:none; cursor:pointer; text-decoration:none;}
+  .ov .dl{background:var(--accent); color:#fff;}
+  .ov .cl{background:transparent; color:#D8CFC1; border:1px solid #6E655A;}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+/* ===== 口才能力测评 · 六维对齐口才界真人测评 + 课程体系 =====
+   【需要修改】下方 CONTACT：把预约方式 / 话术换成你们自己的。 */
+const CONTACT = {
+  heading: "想知道你具体卡在哪、怎么练？",
+  body: "自测只测了最基础的几项、看的是大方向。<br><b>真人 1 对 1 测评</b> 会让教练真听你讲一段、当场拆解你的卡点，精准定位你在「成长路径」的哪一站，再给你一份针对性的训练计划。",
+  action: "回复「测评」预约 · 本周限免名额",
+  small: "—— 口才界 · 真人一对一表达力测评"
+};
+const DIMS = {
+  xinli:   { name:"心理素质", mod:"当众表达 · 心理素质", one:"能力够，但一上场就被紧张带走了。",
+    desc:"先说重要的：紧张是正常的，是刻在基因里的本能，没人能「消灭」它。真正的高手不是不紧张，而是能跟紧张共处、不被它牵着走。这关靠的是「刻意暴露」加上心态转个弯——练得到。",
+    tips:["接受「我会紧张」，别跟它对抗、别骂自己。","从最小场合开始练：先 1 个人，再 3 个人，再一群人。","把注意力从「我表现得好不好」，挪到「我想分享什么」。"] },
+  xienao:  { name:"口脑协调", mod:"当众表达 · 脱稿表达", one:"想得到，但嘴跟不上脑子。",
+    desc:"这不是你脑子慢，是「想」和「说」两个通道没打通、缺训练。很多聪明人都卡在这——心里千言万语，一开口就断片。这是最基础的一关，练的是把脑子里的东西顺畅地「译」成话，从讲小故事开始，过了之后会顺很多。",
+    tips:["别想着「一次说完美」，先开口、边说边理。","每天就一件小事，大声讲给自己听 3 分钟，逼通道。","开口前先在心里说一句「我要讲的是……」，给嘴一个起点。"] },
+  luoji:   { name:"条理表达", mod:"精准表达 · 条理表达", one:"能说，但没结构、听着乱。",
+    desc:"你不缺内容，缺的是「骨架」。脑子里是一团想法，没有先后、没有框架，听的人就跟不上。给表达搭个骨架，同样的内容会清楚一倍——这也是真人测评里教练最常当场点的问题。",
+    tips:["结论先行：先抛观点或结果，再讲为什么。","开口前定「我就讲 3 点」，每点配一个例子。","用「首先 / 其次 / 最后」给自己搭框架。"] },
+  zhuaqu:  { name:"抓取重点", mod:"当众表达 · 即听即说", one:"说得多，但抓不住核心。",
+    desc:"你不缺内容，缺的是「拎重点」的能力。信息一多就眉毛胡子一把抓，听的人累、记不住；听别人讲完，也很难快速抓住主干、复述出来。提炼练出来，你能一句话说到点子上——这是高手最值钱的能力之一。",
+    tips:["开口前逼自己一句话概括：「我最想让对方记住什么？」","砍掉枝节，只留主干，先讲结论。","听完一段话，练着用一句话复述它的核心。"] },
+  jianjie: { name:"简洁表达", mod:"精准表达 · 简洁表达", one:"话多，但不够干净利落。",
+    desc:"啰嗦不是话多，是「没筛过」。把可有可无的铺垫、重复、解释砍掉，留下最有力的那几句，你的话立刻有力量。简洁是一种克制，练得出来。",
+    tips:["说完一句问自己：「这句删掉，意思还在吗？」在就删。","少用铺垫和口头禅，直接上干货。","练「一句话说完一件事」，逼自己收。"] },
+  shenhua: { name:"主题升华", mod:"精准表达 · 主题升华", one:"讲得清，但不够有分量。",
+    desc:"你已经过了「会说」，到进阶区了。差的是从「讲事」到「讲意义」——把一件小事，挂到一个能引起共鸣的道理上。这一步练出来，你的话就有了影响力和余味。",
+    tips:["讲完一件事，多问一句「这说明了什么？」","把事和一个普世的道理、或一种情感挂上钩。","联系自己的经历，让观点有温度、有「人味」。"] }
+};
+const ORDER = ["xinli","xienao","luoji","zhuaqu","jianjie","shenhua"];
+// 主卡点 -> 所处阶段（1 当众表达 / 2 精准表达）
+const STAGE_OF = { xinli:1, xienao:1, zhuaqu:1, shenhua:2, luoji:2, jianjie:2 };
+const STAGES = ["当众表达","精准表达","即兴表达","沟通聊天"];
+
+const LIKERT = [{label:"非常符合",v:3},{label:"比较符合",v:2},{label:"偶尔会有",v:1},{label:"几乎不会",v:0}];
+const QS = [
+  {dim:"xinli",   t:"人一多、被注视，我就紧张，大脑空白、手心冒汗。"},
+  {dim:"xienao",  t:"脑子里明明想好了，一开口却说不出来，或者说得乱。"},
+  {dim:"luoji",   t:"我说话没条理，东一句西一句，没有先后、没有结构。"},
+  {dim:"zhuaqu",  t:"我说了一大堆，但抓不住重点，别人听完不知道我想说啥。"},
+  {dim:"jianjie", t:"我讲话太啰嗦、爱绕，半天说不到点，自己都觉得拖。"},
+  {dim:"shenhua", t:"我能把事讲清楚，但讲不出深度、上不了高度，不够打动人。"},
+  {dim:"xinli",   t:"我很在意别人怎么看我，越想表现好、越紧张、越容易砸。"},
+  {dim:"xienao",  t:"话到嘴边却卡住，经常接不上、突然断片。"},
+  {dim:"luoji",   t:"我习惯想到哪说到哪，很少先抛结论、再分点展开。"},
+  {dim:"zhuaqu",  t:"听别人讲完一段话，让我抓住重点复述，我很难抓准。"},
+  {dim:"jianjie", t:"我容易把简单的事讲复杂，绕来绕去，听的人嫌啰嗦。"},
+  {dim:"shenhua", t:"同样一件事，别人讲得有高度有共鸣，我只能讲个流水账。"}
+];
+const SCENE = { t:"你最想在什么场合，把表达练好？", options:[
+  {label:"开会、工作汇报", tag:"开会汇报"},
+  {label:"面试、求职", tag:"面试求职"},
+  {label:"当众、上台发言", tag:"当众发言"},
+  {label:"客户、销售沟通", tag:"跟客户谈业务"},
+  {label:"日常、社交聊天", tag:"日常社交"},
+  {label:"带团队、做管理", tag:"带团队"}
+]};
+
+const state = { step:-1, ans:new Array(QS.length).fill(null), scenes:[], name:"" };
+const app = document.getElementById("app");
+
+function render(){
+  if(state.step===-1) return renderIntro();
+  if(state.step<QS.length) return renderQ();
+  if(state.step===QS.length) return renderScene();
+  return renderResult();
+}
+
+function renderIntro(){
+  app.innerHTML = `
+   <div class="screen intro"><div>
+     <div class="kicker">口才界 · 表达力诊断</div><div class="rule"></div>
+     <h1>测一测：<br>你的口才，到底<em>卡在哪一关</em>？</h1>
+     <div class="sub">同样是不敢开口，有人卡在「紧张」，有人卡在「没条理」，有人卡在「抓不住重点」。卡点不同，练法完全不同。</div>
+     <div class="meta"><span class="pill">6 大能力维度</span><span class="pill">12+1 道题</span><span class="pill">约 2 分钟</span></div>
+     <div class="namebox"><label>你的称呼（选填，会写进报告）</label><input id="nameInput" maxlength="12" placeholder="例如：小林" /></div>
+     <button class="btn" id="start">开始测评</button>
+     <div class="note">答案没有对错，凭第一感觉选就好。</div>
+   </div><div class="footer">口才界 · 让每个人都敢开口、会表达</div></div>`;
+  document.getElementById("start").onclick = () => { state.name=document.getElementById("nameInput").value.trim(); state.step=0; render(); };
+}
+
+function renderQ(){
+  const q=QS[state.step];
+  app.innerHTML = `
+   <div class="screen q">
+     <div class="top"><button class="back" id="back" ${state.step===0?"disabled":""}>← 上一题</button>
+       <div class="track"><div class="fill" id="fill"></div></div>
+       <div class="count">${state.step+1} / ${QS.length+1}</div></div>
+     <div class="qtag">第 ${state.step+1} 题</div>
+     <div class="qtext">${q.t}</div>
+     <div class="opts" id="opts"></div>
+   </div>`;
+  requestAnimationFrame(()=>{ document.getElementById("fill").style.width=(state.step/(QS.length+1))*100+"%"; });
+  const opts=document.getElementById("opts");
+  LIKERT.forEach((o,i)=>{
+    const b=document.createElement("button");
+    b.className="opt"+(state.ans[state.step]===i?" sel":"");
+    b.innerHTML=`<span class="dot"></span><span>${o.label}</span>`;
+    b.onclick=()=>{ state.ans[state.step]=i; [...opts.children].forEach(c=>c.classList.remove("sel")); b.classList.add("sel"); setTimeout(()=>{state.step++; render();},190); };
+    opts.appendChild(b);
+  });
+  const back=document.getElementById("back"); if(back) back.onclick=()=>{state.step--; render();};
+}
+
+function renderScene(){
+  app.innerHTML = `
+   <div class="screen q">
+     <div class="top"><button class="back" id="back">← 上一题</button>
+       <div class="track"><div class="fill" id="fill"></div></div>
+       <div class="count">${QS.length+1} / ${QS.length+1}</div></div>
+     <div class="qtag">最后一题 · 可多选</div>
+     <div class="qtext">${SCENE.t}</div>
+     <div class="opts" id="opts"></div>
+     <button class="btn" id="done" style="margin-top:24px" ${state.scenes.length?"":"disabled"}>查看我的报告</button>
+   </div>`;
+  requestAnimationFrame(()=>{ document.getElementById("fill").style.width=(QS.length/(QS.length+1))*100+"%"; });
+  const opts=document.getElementById("opts"); const done=document.getElementById("done");
+  SCENE.options.forEach((o,i)=>{
+    const b=document.createElement("button");
+    b.className="opt"+(state.scenes.includes(i)?" sel":"");
+    b.innerHTML=`<span class="dot"></span><span>${o.label}</span>`;
+    b.onclick=()=>{ const at=state.scenes.indexOf(i); if(at>=0){state.scenes.splice(at,1); b.classList.remove("sel");} else {state.scenes.push(i); b.classList.add("sel");} done.disabled=state.scenes.length===0; };
+    opts.appendChild(b);
+  });
+  done.onclick=()=>{ if(state.scenes.length){ state.step++; render(); } };
+  document.getElementById("back").onclick=()=>{state.step--; render();};
+}
+
+function score(){
+  const sum={}, max={};
+  ORDER.forEach(k=>{sum[k]=0; max[k]=0;});
+  QS.forEach((q,i)=>{ const v=state.ans[i]==null?0:LIKERT[state.ans[i]].v; sum[q.dim]+=v; max[q.dim]+=3; });
+  const rankedSymptom=ORDER.slice().sort((a,b)=> sum[b]-sum[a]);
+  const ab=k=> max[k]?(max[k]-sum[k])/max[k]:0;
+  const byAbility=ORDER.slice().sort((a,b)=> ab(b)-ab(a));
+  return {sum,max,rankedSymptom,byAbility,ab};
+}
+
+function renderResult(){
+  const {sum,max,rankedSymptom,byAbility,ab}=score();
+  const primary=rankedSymptom[0];
+  const strong=byAbility[0];
+  const second=rankedSymptom[1];
+  const d=DIMS[primary];
+  const dt=new Date(); const dateStr=`${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日`;
+  const who=state.name?state.name:"你";
+  const lowOverall=sum[primary]<=2;
+  const cur=STAGE_OF[primary];                 // 当前阶段 1/2
+  const curName=STAGES[cur-1];
+
+  const tags=state.scenes.map(i=>SCENE.options[i].tag);
+  let scenePhrase="";
+  if(tags.length===1) scenePhrase=`你最看重「${tags[0]}」的场合，`;
+  else if(tags.length>1) scenePhrase=`你最看重「${tags.slice(0,3).join("、")}」等场合，`;
+
+  const barsHtml=byAbility.map(k=>{
+    const pct=Math.round(ab(k)*100); const hot=(k===primary);
+    return `<div class="bar ${hot?"hot":""}">
+      <div class="row"><span class="nm">${DIMS[k].name}${hot?'<span class="tg">最该先练</span>':''}</span><span class="pc">${pct}%</span></div>
+      <div class="bt"><div class="bf" data-w="${pct}"></div></div></div>`;
+  }).join("");
+
+  // 成长路径
+  const pathHtml=STAGES.map((s,i)=>{
+    const n=i+1; const cls=n<cur?"done":(n===cur?"cur":"");
+    return `<div class="st ${cls}">${s}</div>`;
+  }).join("");
+
+  const summaryLine = lowOverall
+    ? `${who}的表达底子不错，六维比较均衡，没有明显短板。相对来说，<b>「${d.name}」</b> 还可以再打磨。`
+    : `${who}的表达，强在 <b>「${DIMS[strong].name}」</b>；最该先突破的，是 <b>「${d.name}」</b>。`;
+  const concLabel = lowOverall ? "相对最该打磨" : "核心结论 · 你的主卡点";
+  const concOne   = lowOverall ? ("相对而言，"+d.one) : d.one;
+
+  let alsoHtml="";
+  if(!lowOverall && sum[second]>=3 && sum[second]>=sum[primary]-1){
+    alsoHtml=`<div class="also">顺带一提，${who}在 <b>「${DIMS[second].name}」</b> 上也比较突出，可以一起留意。</div>`;
+  }
+  const tipsHtml=d.tips.map(t=>`<div class="tip"><span class="i">·</span><span>${t}</span></div>`).join("");
+  const metaLine = state.name ? `受测人：${state.name}　·　测评日期：${dateStr}` : `测评日期：${dateStr}`;
+  const preLine = scenePhrase ? `<div class="pre">${scenePhrase}建议先从这一关入手。</div>` : "";
+
+  app.innerHTML = `
+   <div class="screen res">
+     <div class="eyebrow">测评完成 · 这是你的报告</div>
+     <div class="report" id="reportCard">
+       <div class="rhead"><div class="rt">口才能力测评报告</div><div class="seal">口才界</div></div>
+       <div class="rmeta">${metaLine}</div>
+       <div class="rdiv"></div>
+       <div class="summary">${summaryLine}</div>
+       <div class="rconc">
+         <div class="rlabel">${concLabel}</div>
+         <div class="nm">${d.name}</div>
+         <div class="one">${concOne}</div>
+         <div class="mod">对应训练模块：${d.mod}</div>
+         ${preLine}
+       </div>
+       <div class="caps">
+         <span class="cap good">💪 相对优势 · ${DIMS[strong].name}</span>
+         <span class="cap warn">📌 最该先练 · ${d.name}</span>
+       </div>
+       <div class="bars">
+         <h4>六维能力掌握度</h4>
+         ${barsHtml}
+         <div class="barnote">越长说明掌握得越好；标红的，是最该先练的一项。</div>
+       </div>
+       <div class="rdiv"></div>
+       <div class="path-sec">
+         <h4>你在成长路径的位置</h4>
+         <div class="path">${pathHtml}</div>
+         <div class="pathmark">▲ 你在这里</div>
+         <div class="pathcap">${who}目前在第 ${cur} 阶段 <b>「${curName}」</b>。沿着这条路一步步往上，从敢开口、说得清，到能即兴、会沟通，表达会越来越稳。</div>
+       </div>
+       <div class="rdiv"></div>
+       <div class="rsec"><h4>为什么会这样</h4><p>${d.desc}</p><div class="tips">${tipsHtml}</div>${alsoHtml}</div>
+       <div class="rfoot">本报告由「口才界 · 表达力自测」生成，仅作自我评估参考。<br>完整诊断与训练计划，建议做一次 <b>真人 1 对 1 测评</b>。</div>
+     </div>
+     <button class="save" id="save">📷 保存报告（图片）</button>
+     <div class="cta"><div class="ct">${CONTACT.heading}</div><div class="cb">${CONTACT.body}</div><div class="action">${CONTACT.action}</div><div class="small">${CONTACT.small}</div></div>
+     <button class="restart" id="restart">重新测一次</button>
+     <div class="footer">精准诊断以真人测评为准</div>
+   </div>`;
+
+  requestAnimationFrame(()=> setTimeout(()=>{ document.querySelectorAll(".bf").forEach(el=> el.style.width=el.dataset.w+"%"); }, 70));
+  document.getElementById("restart").onclick=()=>{ state.step=-1; state.ans=new Array(QS.length).fill(null); state.scenes=[]; render(); };
+  document.getElementById("save").onclick=saveReport;
+}
+
+function saveReport(){
+  const card=document.getElementById("reportCard");
+  const btn=document.getElementById("save"); const old=btn.textContent; btn.textContent="正在生成…"; btn.disabled=true;
+  document.querySelectorAll(".bf").forEach(el=>{ el.style.transition="none"; el.style.width=el.dataset.w+"%"; });
+  if(typeof html2canvas==="undefined"){ btn.textContent="请直接截图保存～"; setTimeout(()=>{btn.textContent=old;btn.disabled=false;},1800); return; }
+  html2canvas(card,{backgroundColor:"#FCFAF5", scale:2, useCORS:true, logging:false}).then(canvas=>{
+    const url=canvas.toDataURL("image/png");
+    const ov=document.createElement("div"); ov.className="ov";
+    ov.innerHTML=`<div class="tip2">长按下方图片即可保存到相册</div><img src="${url}" alt="测评报告"/><div class="row"><a class="dl" href="${url}" download="口才能力测评报告.png">下载图片</a><button class="cl" id="ovcl">关闭</button></div>`;
+    document.body.appendChild(ov); ov.querySelector("#ovcl").onclick=()=>ov.remove();
+    btn.textContent=old; btn.disabled=false;
+  }).catch(()=>{ btn.textContent="生成失败，请直接截图～"; setTimeout(()=>{btn.textContent=old;btn.disabled=false;},1800); });
+}
+render();
+</script>
+</body>
+</html>
