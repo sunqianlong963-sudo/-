@@ -1,19 +1,18 @@
 #!/bin/bash
-# 飞书自定义机器人 - 发送文本消息
-# 用法: bash scripts/发飞书.sh "要发送的消息内容"
+# 用法: bash 发飞书.sh "消息内容"
+# 把下面的 WEBHOOK 换成你自己群机器人的地址
 
-set -e
+WEBHOOK="https://open.feishu.cn/open-apis/bot/v2/hook/替换成你的地址"
 
-WEBHOOK="请把这里替换成你的飞书机器人Webhook地址"
-
-MESSAGE="${1:?用法: bash scripts/发飞书.sh \"消息内容\"}"
-
-if [ "$WEBHOOK" = "请把这里替换成你的飞书机器人Webhook地址" ]; then
-  echo "错误：请先在脚本里把 WEBHOOK 换成你的飞书机器人 Webhook 地址" >&2
+MSG="$1"
+if [ -z "$MSG" ]; then
+  echo "用法: bash 发飞书.sh \"消息内容\""
   exit 1
 fi
 
-PAYLOAD=$(python3 -c 'import json,sys; print(json.dumps({"msg_type":"text","content":{"text":sys.argv[1]}}))' "$MESSAGE")
+curl -s -X POST "$WEBHOOK" \
+  -H "Content-Type: application/json" \
+  -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MSG\"}}"
 
-curl -sS -X POST "$WEBHOOK" -H "Content-Type: application/json" -d "$PAYLOAD"
-echo
+echo ""
+echo "已发送 ✅"
