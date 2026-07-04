@@ -85,3 +85,9 @@
 - 新环境/新机器上首次使用:把 Webhook 地址写入 `scripts/webhook.txt`,或在云端环境设置里配置环境变量 `FEISHU_WEBHOOK`
 - 脚本只认飞书返回 `"code":0` 才报"已发送",失败会原样打印服务器响应,方便排查
 - 云端环境发飞书需要网络策略放行 `open.feishu.cn`(在 claude.ai/code 的环境网络设置里加)
+
+**云端沙箱发不出去时,走 CI 通道(主用方案):**
+- 仓库里有 GitHub Actions 流水线 `.github/workflows/feishu-notify.yml`,CI 服务器网络不受沙箱限制
+- 自动:只要往 `报告输出/` 推送文件(比如新日报),CI 自动把最新一份日报发到飞书群
+- 手动:在 GitHub 仓库 Actions 页面手动运行"发飞书",可自定义消息,留空则发最新日报
+- 前提:仓库 Settings → Secrets and variables → Actions 里配置了 Secret `FEISHU_WEBHOOK`(值为 Webhook 地址;仓库公开,地址只能放 Secret)

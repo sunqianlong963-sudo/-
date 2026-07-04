@@ -1,0 +1,43 @@
+name: 发飞书
+
+on:
+  # 手动触发:可以自定义消息,留空则发送最新一份日报
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 要发送的消息(留空=发送最新日报)
+        required: false
+        type: string
+  # 自动触发:日报一推送,自动发到飞书群
+  push:
+    paths:
+      - '报告输出/**'
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 发送到飞书群
+        env:
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+          INPUT_MESSAGE: ${{ inputs.message }}
+        run: |
+          if [ -z "$FEISHU_WEBHOOK" ]; then
+            echo "仓库还没配置 FEISHU_WEBHOOK 这个 Secret ❌"
+            echo "去 GitHub 仓库 Settings → Secrets and variables → Actions → New repository secret 添加"
+            exit 1
+          fi
+          MSG="$INPUT_MESSAGE"
+          if [ -z "$MSG" ]; then
+            LATEST=$(ls -1 报告输出/日报_*.md 2>/dev/null | sort | tail -n1)
+            if [ -z "$LATEST" ]; then
+              echo "报告输出/ 里没有日报,也没有传消息,不发了"
+              exit 0
+            fi
+            echo "发送最新日报: $LATEST"
+            MSG=$(cat "$LATEST")
+          fi
+          bash scripts/发飞书.sh "$MSG"

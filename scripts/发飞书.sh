@@ -20,9 +20,12 @@ if [ -z "$MSG" ]; then
   exit 1
 fi
 
+# 用 python3 组装 JSON,消息里有换行/引号(比如整份日报)也不会把请求搞坏
+PAYLOAD=$(python3 -c 'import json,sys; print(json.dumps({"msg_type":"text","content":{"text":sys.argv[1]}},ensure_ascii=False))' "$MSG")
+
 RESP=$(curl -s -X POST "$WEBHOOK" \
   -H "Content-Type: application/json" \
-  -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MSG\"}}")
+  -d "$PAYLOAD")
 
 # 只有飞书返回 code:0 才算真的发出去了,不许假装完成
 if echo "$RESP" | grep -q '"code":0'; then
