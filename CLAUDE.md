@@ -74,3 +74,14 @@
 - 哪类内容互动/私信最多
 - 外联中哪种身份介绍回复率最高
 - 客户主动问得最多的问题是什么
+
+---
+
+## 附:飞书群使用方法
+
+发飞书群的方式:运行 `bash scripts/发飞书.sh "消息内容"`。日报生成后必须发一份到群里。
+
+- Webhook 地址是群的钥匙,本仓库是**公开仓库**,地址一律不进 git:脚本从环境变量 `FEISHU_WEBHOOK` 或 `scripts/webhook.txt`(已被 .gitignore 忽略)读取
+- 新环境/新机器上首次使用:把 Webhook 地址写入 `scripts/webhook.txt`,或在云端环境设置里配置环境变量 `FEISHU_WEBHOOK`
+- 脚本只认飞书返回 `"code":0` 才报"已发送",失败会原样打印服务器响应,方便排查
+- 云端环境发飞书需要网络策略放行 `open.feishu.cn`(在 claude.ai/code 的环境网络设置里加)
